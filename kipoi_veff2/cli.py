@@ -31,7 +31,7 @@ def validate_model(ctx, param, value):
     multiple=True,
     callback=validate_model,
     help="Run variant effect prediction using this list of models",
-)  # https://github.com/pallets/click/issues/484
+)
 def cli(input_vcf, output_vcf, models):
     """Perform variant effect prediction with the INPUT_VCF
     file using the MODELS and write them to OUTPUT_VCF
