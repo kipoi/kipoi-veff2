@@ -1,0 +1,9 @@
+{
+    "Basenji": ["diff"],
+    "Basset": ["diff"],
+    "CleTimer": ["diff"],
+    "DeepBind": ["diff"], 
+    "DeepMEL": ["diff"],
+    "DeepSEA": ["diff"], 
+    "MaxEntScan": ["diff"]
+} 

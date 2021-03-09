@@ -1,16 +1,44 @@
-"""Console script for kipoi_veff2."""
-import sys
 import click
+
+from kipoi_veff2.kipoi_veff2 import KipoiVeff
+
+
+def validate_model(ctx, param, value):
+    model_groups = list(value)
+    for model_group in model_groups:
+        if model_group.split("/")[0] not in KipoiVeff.available_models.keys():
+            print(
+                f"Removing {model_group} as it is not supported. \
+                Please consult the documentation"
+            )
+            model_groups.remove(model_group)
+    if not model_groups:
+        raise click.BadParameter(
+            f"Please select atleast one supported model group."
+        )
+    else:
+        return model_groups
 
 
 @click.command()
-def main(args=None):
-    """Console script for kipoi_veff2."""
-    click.echo("Replace this message by putting your code into "
-               "kipoi_veff2.cli.main")
-    click.echo("See click documentation at https://click.palletsprojects.com/")
-    return 0
+@click.argument("input_vcf", required=True, type=click.Path(exists=True))
+@click.argument("output_vcf", required=True)
+@click.option(
+    "-m",
+    "--models",
+    required=True,
+    type=str,
+    multiple=True,
+    callback=validate_model,
+    help="Run variant effect prediction using this list of models",
+)  # https://github.com/pallets/click/issues/484
+def cli(input_vcf, output_vcf, models):
+    """Perform variant effect prediction with the INPUT_VCF
+    file using the MODELS and write them to OUTPUT_VCF
+    """
+    kv = KipoiVeff(input_vcf=input_vcf, output_vcf=output_vcf, models=models)
+    click.echo(kv.predict_variant_effect())
 
 
 if __name__ == "__main__":
-    sys.exit(main())  # pragma: no cover
+    cli()
