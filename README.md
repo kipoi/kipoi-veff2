@@ -36,6 +36,7 @@ pytest
 ```
 python kipoi_veff2/cli.py in.vcf out.vcf -m "Basenji" -m "Basset"
 ```
+Read why models=Basenji, Basset is not favored by click [here](https://github.com/pallets/click/issues/484)
 
 ### pre-commit hooks - black and flake8
 
@@ -45,3 +46,4 @@ pip install pre-commit
 pre-commit install
 pre-commit run --all-files
 ```
+
