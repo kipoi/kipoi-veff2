@@ -36,3 +36,12 @@ pytest
 ```
 python kipoi_veff2/cli.py in.vcf out.vcf -m "Basenji" -m "Basset"
 ```
+
+### pre-commit hooks - black and flake8
+
+For the first time,
+```
+pip install pre-commit 
+pre-commit install
+pre-commit run --all-files
+```
