@@ -1,5 +1,5 @@
 import click
-from path import Path
+from pathlib import Path
 
 AVAILABLE_MODELS = {
     "Basenji": ["diff"],
