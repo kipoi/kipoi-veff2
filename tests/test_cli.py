@@ -14,7 +14,7 @@ def runner():
 def test_cli_correct_use_single_model(runner):
     test_dir = Path(__file__).resolve().parent
     result = runner.invoke(
-        cli.cli,
+        cli.score_variants,
         [str(test_dir / "dummy.vcf"), "out.vcf", "-m", "Basset"],
     )
     assert result.exit_code == 0
@@ -24,7 +24,7 @@ def test_cli_correct_use_single_model(runner):
 def test_cli_correct_use_single_model_diff_flag(runner):
     test_dir = Path(__file__).resolve().parent
     result = runner.invoke(
-        cli.cli,
+        cli.score_variants,
         [str(test_dir / "dummy.vcf"), "out.vcf", "--models", "Basset"],
     )
     assert result.exit_code == 0
@@ -34,7 +34,7 @@ def test_cli_correct_use_single_model_diff_flag(runner):
 def test_cli_correct_use_multiple_models(runner):
     test_dir = Path(__file__).resolve().parent
     result = runner.invoke(
-        cli.cli,
+        cli.score_variants,
         [
             str(test_dir / "dummy.vcf"),
             "out.vcf",
@@ -51,7 +51,7 @@ def test_cli_correct_use_multiple_models(runner):
 def test_cli_correct_use_multiple_models_wrong_model(runner):
     test_dir = Path(__file__).resolve().parent
     result = runner.invoke(
-        cli.cli,
+        cli.score_variants,
         [
             str(test_dir / "dummy.vcf"),
             "out.vcf",
@@ -75,7 +75,9 @@ def test_cli_correct_use_multiple_models_wrong_model(runner):
 
 
 def test_cli_input_file_does_not_exist(runner):
-    result = runner.invoke(cli.cli, ["in.vcf", "out.vcf", "-m", "Basset"])
+    result = runner.invoke(
+        cli.score_variants, ["in.vcf", "out.vcf", "-m", "Basset"]
+    )
     assert result.exit_code == 2
     assert "Error: Invalid value" in result.output
 
@@ -83,7 +85,7 @@ def test_cli_input_file_does_not_exist(runner):
 def test_cli_missing_output(runner):
     test_dir = Path(__file__).resolve().parent
     result = runner.invoke(
-        cli.cli, [str(test_dir / "dummy.vcf"), "-m", "Basset"]
+        cli.score_variants, [str(test_dir / "dummy.vcf"), "-m", "Basset"]
     )
     assert result.exit_code == 2
     assert "Error: Missing argument" in result.output
@@ -91,7 +93,9 @@ def test_cli_missing_output(runner):
 
 def test_cli_missing_models(runner):
     test_dir = Path(__file__).resolve().parent
-    result = runner.invoke(cli.cli, [str(test_dir / "dummy.vcf"), "out.vcf"])
+    result = runner.invoke(
+        cli.score_variants, [str(test_dir / "dummy.vcf"), "out.vcf"]
+    )
     assert result.exit_code == 2
     assert "Error: Missing option" in result.output
 
@@ -99,7 +103,8 @@ def test_cli_missing_models(runner):
 def test_cli_wrong_model(runner):
     test_dir = Path(__file__).resolve().parent
     result = runner.invoke(
-        cli.cli, [str(test_dir / "dummy.vcf"), "out.vcf", "-m", "Dummy"]
+        cli.score_variants,
+        [str(test_dir / "dummy.vcf"), "out.vcf", "-m", "Dummy"],
     )
     assert result.exit_code == 2
     assert "Removing Dummy as it is not supported" in result.output

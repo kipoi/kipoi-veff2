@@ -1,23 +1,45 @@
 import click
+from path import Path
 
-from kipoi_veff2.kipoi_veff2 import KipoiVeff
+AVAILABLE_MODELS = {
+    "Basenji": ["diff"],
+    "Basset": ["diff"],
+    "CleTimer": ["diff"],
+    "DeepBind": ["diff"],
+    "DeepMEL": ["diff"],
+    "DeepSEA": ["diff"],
+}
 
 
-def validate_model(ctx, param, value):
-    model_groups = list(value)
-    for model_group in model_groups:
-        if model_group.split("/")[0] not in KipoiVeff.available_models.keys():
+def validate_model(ctx, param, models):
+    """[This is a callback for validation of requested model groups w.r.t AVAILABLE_MODELS]
+
+    Args:
+        ctx ([click.Context]): [Current context]
+        param ([click.Parameter]): [The parameters to register with this command - Options in this case]
+        models ([Tuple]): [Models of interest]
+
+    Raises:
+        click.BadParameter: [An exception that formats out a standardized error message for a bad parameter
+        if there are no models to score variants with]
+
+    Returns:
+        [list]: [List of models which are available for variant scoing]
+    """
+    models = list(models)
+    for model in models:
+        if model.split("/")[0] not in AVAILABLE_MODELS.keys():
             print(
-                f"Removing {model_group} as it is not supported. \
+                f"Removing {model} as it is not supported. \
                 Please consult the documentation"
             )
-            model_groups.remove(model_group)
-    if not model_groups:
+            models.remove(model)
+    if not models:
         raise click.BadParameter(
             f"Please select atleast one supported model group."
         )
     else:
-        return model_groups
+        return models
 
 
 @click.command()
@@ -30,15 +52,19 @@ def validate_model(ctx, param, value):
     type=str,
     multiple=True,
     callback=validate_model,
-    help="Run variant effect prediction using this list of models",
+    help="Run variant effect prediction using this list of models. \
+        Example: python kipoi_veff2/cli.py in.vcf out.vcf -m 'Basenji' -m 'Basset' ",
 )
-def cli(input_vcf, output_vcf, models):
+def score_variants(input_vcf, output_vcf, models):
     """Perform variant effect prediction with the INPUT_VCF
     file using the MODELS and write them to OUTPUT_VCF
     """
-    kv = KipoiVeff(input_vcf=input_vcf, output_vcf=output_vcf, models=models)
-    click.echo(kv.predict_variant_effect())
+    input_vcf = Path(input_vcf)
+    output_vcf = Path(output_vcf)
+    click.echo(
+        f"input_vcf = {input_vcf}, output_vcf = {output_vcf},models={models}"
+    )
 
 
 if __name__ == "__main__":
-    cli()
+    score_variants()
