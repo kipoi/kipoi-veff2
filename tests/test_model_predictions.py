@@ -10,7 +10,7 @@ import subprocess
         "Basset",
         "CleTimer/customBP",
         "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF",
-        "DeepMEL",
+        "DeepMEL/DeepMEL",
         "DeepSEA/predict",
         "MaxEntScan/5prime",
     ],
