@@ -91,6 +91,7 @@ dependencies:
     - zict=2.0.0
     - zlib=1.2.11
     - zstd=1.4.5
+    - pytest=6.1.1
     - pip:
       - argcomplete==1.12.2
       - argh==0.26.2
