@@ -1,5 +1,6 @@
 from cyvcf2 import VCF
 import numpy as np
+from typing import List, Iterator
 
 import kipoi
 from kipoiseq.dataclasses import Interval, Variant
@@ -9,7 +10,7 @@ from kipoi_veff2.modelconfig import ModelConfig
 
 
 class Diff:
-    def __call__(self, ref_pred, alt_pred):
+    def __call__(self, ref_pred: List, alt_pred: List) -> List:
         return alt_pred - ref_pred
 
 
@@ -25,7 +26,9 @@ MODELS = {
 }
 
 
-def dataloader(vcf_file, fasta_file, sequence_length):
+def dataloader(
+    vcf_file: str, fasta_file: str, sequence_length: str
+) -> Iterator[tuple]:
     variant_extractor = VariantSeqExtractor(fasta_file=fasta_file)
     for cv in VCF(vcf_file):
         variant = Variant.from_cyvcf(cv)
@@ -41,7 +44,9 @@ def dataloader(vcf_file, fasta_file, sequence_length):
         yield (ref, alt, variant)
 
 
-def score_variants(model_config, vcf_file, fasta_file, output_file):
+def score_variants(
+    model_config: ModelConfig, vcf_file: str, fasta_file: str, output_file: str
+) -> List:
     kipoi_model = kipoi.get_model(model_config.model)
     sequence_length = model_config.required_sequence_length
     transform = model_config.get_transform()
@@ -50,9 +55,9 @@ def score_variants(model_config, vcf_file, fasta_file, output_file):
         ref_prediction = kipoi_model.predict_on_batch(
             transform(ref)[np.newaxis]
         )[0]
-        print(ref_prediction.size)
         alt_prediction = kipoi_model.predict_on_batch(
             transform(alt)[np.newaxis]
         )[0]
-        scores.append(model_config.scoring_fn(ref_prediction, alt_prediction))
+        score = model_config.scoring_fn(ref_prediction, alt_prediction)
+        scores.append(score)
     return scores

@@ -1,27 +1,22 @@
-from click.testing import CliRunner
 from pathlib import Path
 
-import pytest
-
-from kipoi_veff2 import cli
-
-
-@pytest.fixture
-def runner():
-    runner = CliRunner()
-    yield runner
+from kipoiseq.dataclasses import Variant
+from kipoi_veff2 import variant_centered
 
 
-def test_dataloader(runner):
+def test_dataloader():
     test_dir = Path(__file__).resolve().parent
-    result = runner.invoke(
-        cli.score_variants,
-        [
-            str(test_dir / "data" / "test.vcf"),
-            str(test_dir / "data" / "hg38_chr22.fa"),
-            str(test_dir / "data" / "out.vcf"),
-            "-m",
-            "DeepSEA/predict",
-        ],
-    )
-    assert result.exit_code == 0
+    vcf_file = str(test_dir / "data" / "singlevariant.vcf")
+    fasta_file = str(test_dir / "data" / "hg38_chr22.fa")
+    sequence_length = 10
+
+    for ref, alt, variant in variant_centered.dataloader(
+        vcf_file=vcf_file,
+        fasta_file=fasta_file,
+        sequence_length=sequence_length,
+    ):
+        assert ref == "TGGTGATTTT"
+        assert alt == "TGGTTATTTT"
+        assert variant == Variant(
+            chrom="chr22", pos=21541590, ref="A", alt="T", id="None"
+        )

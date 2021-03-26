@@ -1,25 +1,18 @@
 import click
 
-import kipoi
 from kipoi_veff2 import variant_centered
 
 
-def validate_model(ctx, param, model):
-    """[This is a callback for validation of requested model w.r.t AVAILABLE_MODELS]
-
-    Args:
-        ctx ([click.Context]): [Current context]
-        param ([click.Parameter]): [The parameters to register with this command - Options in this case]
-        model ([Tuple]): [Model of interest]
-
+def validate_model(
+    ctx: click.Context, param: click.Parameter, model: str
+) -> str:
+    """[This is a callback for validation of requested model w.r.t
+        AVAILABLE_MODELS]
     Raises:
-        click.BadParameter: [An exception that formats out a standardized error message for a bad parameter
+        click.BadParameter: [An exception that formats
+        out a standardized error message for a bad parameter
         if there are no model to score variants with]
-
-    Returns:
-        [str]: [Name of the model to score variant with]
     """
-    model = model[0]
     if model not in variant_centered.MODELS.keys():
         print(
             f"Removing {model} as it is not supported. \
@@ -45,21 +38,19 @@ def validate_model(ctx, param, model):
     "--model",
     required=True,
     type=str,
-    multiple=True,
     callback=validate_model,
     help="Run variant effect prediction using this model. \
-        Example: python kipoi_veff2/cli.py in.vcf in.fa out.vcf -m 'Basenji' ",
+        Example: python kipoi_veff2/cli.py in.vcf in.fa out.vcf -m Basenji ",
 )
-def score_variants(input_vcf, input_fasta, output_vcf, model):
-    """Perform variant effect prediction with the INPUT_VCF and INPUT_FASTA files using the MODELS and write them to OUTPUT_VCF"""
-    click.echo(
-        f"input_vcf = {input_vcf}, input_fasta = {input_fasta}, output_vcf = {output_vcf}, model={model}"
-    )
+def score_variants(
+    input_vcf: click.Path, input_fasta: click.Path, output_vcf: str, model: str
+) -> None:
+    """Perform variant effect prediction with the INPUT_VCF and INPUT_FASTA
+    files using the MODELS and write them to OUTPUT_VCF"""
     model_config = variant_centered.MODELS[model]
-    scores = variant_centered.score_variants(
+    variant_centered.score_variants(
         model_config, input_vcf, input_fasta, output_vcf
     )
-    click.echo(f"scores = {scores[0].size}")
 
 
 if __name__ == "__main__":

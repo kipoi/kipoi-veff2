@@ -24,7 +24,6 @@ def test_cli_correct_use_model(runner):
         ],
     )
     assert result.exit_code == 0
-    assert "model=DeepSEA/predict" in result.output
 
 
 def test_cli_correct_use_single_model_diff_flag(runner):
@@ -40,7 +39,6 @@ def test_cli_correct_use_single_model_diff_flag(runner):
         ],
     )
     assert result.exit_code == 0
-    assert "model=DeepSEA/predict" in result.output
 
 
 def test_cli_input_vcf_does_not_exist(runner):
