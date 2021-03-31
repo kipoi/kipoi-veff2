@@ -1,26 +1,22 @@
-from cyvcf2 import VCF
-import numpy as np
+import csv
 from typing import List, Iterator
 
+from cyvcf2 import VCF
+import numpy as np
 import kipoi
 from kipoiseq.dataclasses import Interval, Variant
 from kipoiseq.extractors import VariantSeqExtractor
-from kipoiseq.transforms import ReorderedOneHot
 from kipoi_veff2.modelconfig import ModelConfig
 
 
 class Diff:
     def __call__(self, ref_pred: List, alt_pred: List) -> List:
-        return alt_pred - ref_pred
+        return list(alt_pred - ref_pred)
 
 
 MODELS = {
     "DeepSEA/predict": ModelConfig(
         model="DeepSEA/predict",
-        required_sequence_length=1000,
-        transform=ReorderedOneHot(
-            alphabet="ACGT", dtype=np.float32, alphabet_axis=0, dummy_axis=1
-        ),
         scoring_fn=Diff(),
     )
 }
@@ -46,18 +42,33 @@ def dataloader(
 
 def score_variants(
     model_config: ModelConfig, vcf_file: str, fasta_file: str, output_file: str
-) -> List:
+) -> None:
     kipoi_model = kipoi.get_model(model_config.model)
-    sequence_length = model_config.required_sequence_length
+    sequence_length = model_config.get_required_sequence_length()
     transform = model_config.get_transform()
-    scores = []
-    for ref, alt, variant in dataloader(vcf_file, fasta_file, sequence_length):
-        ref_prediction = kipoi_model.predict_on_batch(
-            transform(ref)[np.newaxis]
-        )[0]
-        alt_prediction = kipoi_model.predict_on_batch(
-            transform(alt)[np.newaxis]
-        )[0]
-        score = model_config.scoring_fn(ref_prediction, alt_prediction)
-        scores.append(score)
-    return scores
+    column_labels = model_config.get_column_labels()
+    with open(output_file, "w") as output_tsv:
+        tsv_writer = csv.writer(output_tsv, delimiter="\t")
+        tsv_writer.writerow(
+            ["#CHROM", "POS", "ID", "REF", "ALT"] + column_labels
+        )
+        for ref, alt, variant in dataloader(
+            vcf_file, fasta_file, sequence_length
+        ):
+            ref_prediction = kipoi_model.predict_on_batch(
+                transform(ref)[np.newaxis]
+            )[0]
+            alt_prediction = kipoi_model.predict_on_batch(
+                transform(alt)[np.newaxis]
+            )[0]
+            score = model_config.scoring_fn(ref_prediction, alt_prediction)
+            tsv_writer.writerow(
+                [
+                    variant.chrom,
+                    variant.pos,
+                    variant.id,
+                    variant.ref,
+                    variant.alt,
+                ]
+                + score
+            )

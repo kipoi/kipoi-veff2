@@ -34,7 +34,7 @@ pytest
 
 # Use
 ```
-python kipoi_veff2/cli.py in.vcf out.vcf -m "Basenji" -m "Basset"
+python kipoi_veff2/cli.py in.vcf in.fasta out.tsv -m "Basenji" 
 ```
 Read why models=Basenji, Basset is not favored by click [here](https://github.com/pallets/click/issues/484)
 
