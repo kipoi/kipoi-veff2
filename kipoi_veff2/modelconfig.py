@@ -62,4 +62,4 @@ class ModelConfig:
                     length of column names does not match target shape"
                 )
         else:
-            return [f"{self.model}/{num}" for num in target_shape]
+            return [f"{self.model}/{num+1}" for num in range(target_shape)]
