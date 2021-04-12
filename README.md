@@ -34,7 +34,7 @@ pytest
 
 # Use
 ```
-python kipoi_veff2/cli.py in.vcf out.vcf -m "Basenji" 
+python kipoi_veff2/cli.py in.vcf in.fasta out.tsv -m "Basenji" 
 ```
 ### pre-commit hooks - black and flake8
 

@@ -32,7 +32,7 @@ def validate_model(
 @click.argument(
     "input_fasta", required=True, type=click.Path(exists=True, readable=True)
 )
-@click.argument("output_vcf", required=True)
+@click.argument("output_tsv", required=True)
 @click.option(
     "-m",
     "--model",
@@ -40,16 +40,16 @@ def validate_model(
     type=str,
     callback=validate_model,
     help="Run variant effect prediction using this model. \
-        Example: python kipoi_veff2/cli.py in.vcf in.fa out.vcf -m Basenji ",
+        Example: python kipoi_veff2/cli.py in.vcf in.fa out.tsv -m Basenji ",
 )
 def score_variants(
-    input_vcf: click.Path, input_fasta: click.Path, output_vcf: str, model: str
+    input_vcf: click.Path, input_fasta: click.Path, output_tsv: str, model: str
 ) -> None:
     """Perform variant effect prediction with the INPUT_VCF and INPUT_FASTA
-    files using the MODELS and write them to OUTPUT_VCF"""
+    files using the MODELS and write them to OUTPUT_TSV"""
     model_config = variant_centered.MODELS[model]
     variant_centered.score_variants(
-        model_config, input_vcf, input_fasta, output_vcf
+        model_config, input_vcf, input_fasta, output_tsv
     )
 
 
