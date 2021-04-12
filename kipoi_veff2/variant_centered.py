@@ -45,6 +45,9 @@ MODELS = {
     ),
     "DeepSEA/predict": ModelConfig(
         model="DeepSEA/predict",
+        transform=ReorderedOneHot(
+            alphabet="ACGT", dtype=np.float32, alphabet_axis=0, dummy_axis=1
+        ),
         scoring_fn=diff,
     ),
     "DeepSEA/variantEffects": ModelConfig(
