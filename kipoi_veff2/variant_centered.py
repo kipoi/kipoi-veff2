@@ -45,6 +45,7 @@ MODELS = {
     ),
     "DeepSEA/predict": ModelConfig(
         model="DeepSEA/predict",
+        required_sequence_length=1000,
         transform=ReorderedOneHot(
             alphabet="ACGT", dtype=np.float32, alphabet_axis=0, dummy_axis=1
         ),
