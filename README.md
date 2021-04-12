@@ -36,8 +36,6 @@ pytest
 ```
 python kipoi_veff2/cli.py in.vcf in.fasta out.tsv -m "Basenji" 
 ```
-Read why models=Basenji, Basset is not favored by click [here](https://github.com/pallets/click/issues/484)
-
 ### pre-commit hooks - black and flake8
 
 For the first time,
