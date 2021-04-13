@@ -2,6 +2,7 @@ import csv
 from pathlib import Path
 
 from kipoi_veff2 import variant_centered
+import pytest
 
 
 def test_modelconfig():
@@ -17,8 +18,21 @@ def test_modelconfig():
     assert test_model_config.get_transform().alphabet == ["A", "C", "G", "T"]
 
 
-def test_scoring():
-    test_model_config = variant_centered.MODELS["DeepSEA/predict"]
+@pytest.mark.parametrize(
+    "model_name, header_name, number_of_headers",
+    [
+        ("Basset", "Basset/PANC", 169),
+        ("DeepSEA/beluga", "DeepSEA/beluga/Osteoblasts_H4K20me1_None", 2007),
+        ("DeepSEA/predict", "DeepSEA/predict/Osteoblasts_H3K9me3_None", 924),
+        (
+            "DeepSEA/variantEffects",
+            "DeepSEA/variantEffects/Osteoblasts_H3K9me3_None",
+            924,
+        ),
+    ],
+)
+def test_scoring(model_name, header_name, number_of_headers):
+    test_model_config = variant_centered.MODELS[model_name]
     test_dir = Path(__file__).resolve().parent
     vcf_file = str(test_dir / "data" / "singlevariant.vcf")
     fasta_file = str(test_dir / "data" / "hg38_chr22.fa")
@@ -34,8 +48,8 @@ def test_scoring():
     with open(output_file, "r") as output_file_handle:
         tsv_reader = csv.reader(output_file_handle, delimiter="\t")
         header = next(tsv_reader)
-        assert len(header) == 924
-        assert header[923] == "DeepSEA/predict/Osteoblasts_H3K9me3_None"
+        assert len(header) == number_of_headers
+        assert header[number_of_headers - 1] == header_name
         row = next(tsv_reader)
         assert row[2] == ""
-        assert len(row) == 924
+        assert len(row) == number_of_headers

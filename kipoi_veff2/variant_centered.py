@@ -78,10 +78,22 @@ def diff(ref_pred: List, alt_pred: List) -> List:
 
 
 MODELS = {
+    "Basset": ModelConfig(
+        model="Basset",
+        scoring_fn=diff,
+    ),
+    "DeepSEA/beluga": ModelConfig(
+        model="DeepSEA/beluga",
+        scoring_fn=diff,
+    ),
     "DeepSEA/predict": ModelConfig(
         model="DeepSEA/predict",
         scoring_fn=diff,
-    )
+    ),
+    "DeepSEA/variantEffects": ModelConfig(
+        model="DeepSEA/variantEffects",
+        scoring_fn=diff,
+    ),
 }
 
 
