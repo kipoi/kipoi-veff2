@@ -7,7 +7,7 @@ def validate_model(
     ctx: click.Context, param: click.Parameter, model: str
 ) -> str:
     """[This is a callback for validation of requested model w.r.t
-        AVAILABLE_MODELS]
+        variant_centered.MODELGROUPS]
     Raises:
         click.BadParameter: [An exception that formats
         out a standardized error message for a bad parameter
