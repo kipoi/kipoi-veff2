@@ -13,9 +13,10 @@ def validate_model(
         out a standardized error message for a bad parameter
         if there are no model to score variants with]
     """
-    if model not in variant_centered.MODELS.keys():
+    model_group = model.split("/")[0]
+    if model_group not in variant_centered.MODELGROUPS:
         print(
-            f"Removing {model} as it is not supported. \
+            f"Removing {model_group} as it is not supported. \
             Please consult the documentation"
         )
         raise click.BadParameter(
@@ -47,7 +48,7 @@ def score_variants(
 ) -> None:
     """Perform variant effect prediction with the INPUT_VCF and INPUT_FASTA
     files using the MODELS and write them to OUTPUT_TSV"""
-    model_config = variant_centered.MODELS[model]
+    model_config = variant_centered.get_model_config(model_name=model)
     variant_centered.score_variants(
         model_config, input_vcf, input_fasta, output_tsv
     )
