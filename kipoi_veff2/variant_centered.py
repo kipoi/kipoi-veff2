@@ -1,6 +1,8 @@
 import csv
 from dataclasses import dataclass
-from typing import Any, Callable, List, Iterator
+import itertools
+from pathlib import Path
+from typing import Any, Dict, List, Iterator, Callable, Union
 
 from cyvcf2 import VCF
 import numpy as np
@@ -9,11 +11,12 @@ from kipoiseq.dataclasses import Interval, Variant
 from kipoiseq.extractors import VariantSeqExtractor
 from kipoiseq.transforms import ReorderedOneHot
 
+MODELGROUPS = ["Basset", "DeepBind", "DeepSEA"]
+
 
 @dataclass
 class ModelConfig:
     model: str
-    scoring_fn: Callable[[List, List], List]
     required_sequence_length: int = None
     transform: Any = None
 
@@ -36,9 +39,15 @@ class ModelConfig:
                 dataloader_args = self.dataloader.default_args
                 self.transform = ReorderedOneHot(
                     alphabet="ACGT",
-                    dtype=dataloader_args["dtype"],
-                    alphabet_axis=dataloader_args["alphabet_axis"],
-                    dummy_axis=dataloader_args["dummy_axis"],
+                    dtype=dataloader_args["dtype"]
+                    if "dtype" in dataloader_args
+                    else None,
+                    alphabet_axis=dataloader_args["alphabet_axis"]
+                    if "alphabet_axis" in dataloader_args
+                    else 1,
+                    dummy_axis=dataloader_args["dummy_axis"]
+                    if "dummy_axis" in dataloader_args
+                    else None,
                 )
             else:
                 raise IOError("Only supporting sequence based models for now")
@@ -57,44 +66,34 @@ class ModelConfig:
         else:
             return self.required_sequence_length
 
-    def get_column_labels(self) -> List:
+    def get_column_labels(
+        self, list_of_scoring_fn: List[Dict[str, Callable[[Any, Any], List]]]
+    ) -> List:
         targets = self.model_description.schema.targets
         column_labels = targets.column_labels
         target_shape = targets.shape[0]
         if column_labels:
             if len(column_labels) == target_shape:
-                return [f"{self.model}/{c}" for c in column_labels]
+                return [
+                    f"{self.model}/{c}/{scoring_fn['name']}"
+                    for scoring_fn in list_of_scoring_fn
+                    for c in column_labels
+                ]
             else:
                 raise IOError(
                     "Something wrong with the model description - \
                         length of column names does not match target shape"
                 )
         else:
-            return [f"{self.model}/{num+1}" for num in range(target_shape)]
+            return [
+                f"{self.model}/{num+1}/{scoring_fn['name']}"
+                for scoring_fn in list_of_scoring_fn
+                for num in range(target_shape)
+            ]
 
 
-def diff(ref_pred: List, alt_pred: List) -> List:
-    return list(alt_pred - ref_pred)
-
-
-MODELS = {
-    "Basset": ModelConfig(
-        model="Basset",
-        scoring_fn=diff,
-    ),
-    "DeepSEA/beluga": ModelConfig(
-        model="DeepSEA/beluga",
-        scoring_fn=diff,
-    ),
-    "DeepSEA/predict": ModelConfig(
-        model="DeepSEA/predict",
-        scoring_fn=diff,
-    ),
-    "DeepSEA/variantEffects": ModelConfig(
-        model="DeepSEA/variantEffects",
-        scoring_fn=diff,
-    ),
-}
+def get_model_config(model_name: str) -> ModelConfig:
+    return ModelConfig(model=model_name)
 
 
 def dataloader(
@@ -117,12 +116,18 @@ def dataloader(
 
 
 def score_variants(
-    model_config: ModelConfig, vcf_file: str, fasta_file: str, output_file: str
+    model_config: ModelConfig,
+    vcf_file: str,
+    fasta_file: str,
+    output_file: Union[str, Path],
+    list_of_scoring_fn: List[Dict[str, Callable[[Any, Any], List]]],
 ) -> None:
     kipoi_model = kipoi.get_model(model_config.model)
     sequence_length = model_config.get_required_sequence_length()
     transform = model_config.get_transform()
-    column_labels = model_config.get_column_labels()
+    column_labels = model_config.get_column_labels(
+        list_of_scoring_fn=list_of_scoring_fn
+    )
     with open(output_file, "w") as output_tsv:
         tsv_writer = csv.writer(output_tsv, delimiter="\t")
         tsv_writer.writerow(
@@ -137,7 +142,11 @@ def score_variants(
             alt_prediction = kipoi_model.predict_on_batch(
                 transform(alt)[np.newaxis]
             )[0]
-            score = model_config.scoring_fn(ref_prediction, alt_prediction)
+            scores = [
+                scoring_fn["func"](ref_prediction, alt_prediction)
+                for scoring_fn in list_of_scoring_fn
+            ]
+            scores = list(itertools.chain.from_iterable(scores))
             tsv_writer.writerow(
                 [
                     variant.chrom,
@@ -146,5 +155,5 @@ def score_variants(
                     variant.ref,
                     variant.alt,
                 ]
-                + score
+                + scores
             )
