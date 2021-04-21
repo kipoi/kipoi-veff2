@@ -130,4 +130,5 @@ dmypy.json
 
 .DS_Store
 
-tests/data/out.tsv
+tests/data/*.tsv
+tests/data/interval-based/*.tsv

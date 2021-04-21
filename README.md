@@ -10,11 +10,15 @@ We are providing a docker containers for development purposes as well. The use i
 # Build
 ```
 docker build --no-cache -t kipoi-veff2-docker -f Dockerfile .
+docker build --no-cache -t kipoi-veff2-mmsplice-docker -f Dockerfile .
+
 ```
 
 # Run 
 ```
 docker run -v $PWD:/app/ -it kipoi-veff2-docker
+docker run -v $PWD:/app/ -it kipoi-veff2-mmsplice-docker
+
 ```
 
 This will return a bash shell with the conda environment already activated
@@ -34,8 +38,10 @@ pytest
 
 # Use
 ```
-python kipoi_veff2/cli.py in.vcf in.fasta out.tsv -m "Basenji" 
+python kipoi_veff2/cli.py in.vcf in.fasta -g in.gtf" out.tsv -m "DeepSEA/predict" -s "diff" -s "logit"
 ```
+Read why scoringfn=diff,logit is not favored by click [here](https://github.com/pallets/click/issues/484)
+
 ### pre-commit hooks - black and flake8
 
 For the first time,
