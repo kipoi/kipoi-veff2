@@ -1,6 +1,7 @@
 import csv
 from dataclasses import dataclass
-from typing import Any, Callable, List, Iterator
+from typing import Any, Callable, List, Iterator, Union
+from pathlib import Path
 
 from cyvcf2 import VCF
 import numpy as np
@@ -8,6 +9,8 @@ import kipoi
 from kipoiseq.dataclasses import Interval, Variant
 from kipoiseq.extractors import VariantSeqExtractor
 from kipoiseq.transforms import ReorderedOneHot
+
+MODEL_GROUPS = ["Basset", "DeepBind", "DeepSEA"]
 
 
 @dataclass
@@ -36,9 +39,9 @@ class ModelConfig:
                 dataloader_args = self.dataloader.default_args
                 self.transform = ReorderedOneHot(
                     alphabet="ACGT",
-                    dtype=dataloader_args["dtype"],
-                    alphabet_axis=dataloader_args["alphabet_axis"],
-                    dummy_axis=dataloader_args["dummy_axis"],
+                    dtype=dataloader_args.get("dtype", None),
+                    alphabet_axis=dataloader_args.get("alphabet_axis", 1),
+                    dummy_axis=dataloader_args.get("dummy_axis", None),
                 )
             else:
                 raise IOError("Only supporting sequence based models for now")
@@ -73,28 +76,12 @@ class ModelConfig:
             return [f"{self.model}/{num+1}" for num in range(target_shape)]
 
 
-def diff(ref_pred: List, alt_pred: List) -> List:
-    return list(alt_pred - ref_pred)
+def diff(ref_pred: Any, alt_pred: Any) -> List:
+    return alt_pred - ref_pred
 
 
-MODELS = {
-    "Basset": ModelConfig(
-        model="Basset",
-        scoring_fn=diff,
-    ),
-    "DeepSEA/beluga": ModelConfig(
-        model="DeepSEA/beluga",
-        scoring_fn=diff,
-    ),
-    "DeepSEA/predict": ModelConfig(
-        model="DeepSEA/predict",
-        scoring_fn=diff,
-    ),
-    "DeepSEA/variantEffects": ModelConfig(
-        model="DeepSEA/variantEffects",
-        scoring_fn=diff,
-    ),
-}
+def get_model_config(model_name: str) -> ModelConfig:
+    return ModelConfig(model=model_name, scoring_fn=diff)
 
 
 def dataloader(
@@ -117,7 +104,10 @@ def dataloader(
 
 
 def score_variants(
-    model_config: ModelConfig, vcf_file: str, fasta_file: str, output_file: str
+    model_config: ModelConfig,
+    vcf_file: str,
+    fasta_file: str,
+    output_file: Union[str, Path],
 ) -> None:
     kipoi_model = kipoi.get_model(model_config.model)
     sequence_length = model_config.get_required_sequence_length()
@@ -138,6 +128,8 @@ def score_variants(
                 transform(alt)[np.newaxis]
             )[0]
             score = model_config.scoring_fn(ref_prediction, alt_prediction)
+            # TODO: Cleaner code
+            score = [score] if score.size == 1 else list(score)
             tsv_writer.writerow(
                 [
                     variant.chrom,
