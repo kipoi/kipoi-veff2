@@ -7,14 +7,14 @@ def validate_model(
     ctx: click.Context, param: click.Parameter, model: str
 ) -> str:
     """[This is a callback for validation of requested model w.r.t
-        variant_centered.MODELGROUPS]
+        variant_centered.MODEL_GROUPS]
     Raises:
         click.BadParameter: [An exception that formats
         out a standardized error message for a bad parameter
         if there are no model to score variants with]
     """
     model_group = model.split("/")[0]
-    if model_group not in variant_centered.MODELGROUPS:
+    if model_group not in variant_centered.MODEL_GROUPS:
         print(
             f"Removing {model_group} as it is not supported. \
             Please consult the documentation"

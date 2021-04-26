@@ -10,7 +10,7 @@ from kipoiseq.dataclasses import Interval, Variant
 from kipoiseq.extractors import VariantSeqExtractor
 from kipoiseq.transforms import ReorderedOneHot
 
-MODELGROUPS = ["Basset", "DeepBind", "DeepSEA"]
+MODEL_GROUPS = ["Basset", "DeepBind", "DeepSEA"]
 
 
 @dataclass
@@ -39,15 +39,9 @@ class ModelConfig:
                 dataloader_args = self.dataloader.default_args
                 self.transform = ReorderedOneHot(
                     alphabet="ACGT",
-                    dtype=dataloader_args["dtype"]
-                    if "dtype" in dataloader_args
-                    else None,
-                    alphabet_axis=dataloader_args["alphabet_axis"]
-                    if "alphabet_axis" in dataloader_args
-                    else 1,
-                    dummy_axis=dataloader_args["dummy_axis"]
-                    if "dummy_axis" in dataloader_args
-                    else None,
+                    dtype=dataloader_args.get("dtype", None),
+                    alphabet_axis=dataloader_args.get("alphabet_axis", 1),
+                    dummy_axis=dataloader_args.get("dummy_axis", None),
                 )
             else:
                 raise IOError("Only supporting sequence based models for now")
@@ -83,11 +77,7 @@ class ModelConfig:
 
 
 def diff(ref_pred: Any, alt_pred: Any) -> List:
-    # For DeepBind - TODO: Cleaner code
-    if isinstance(alt_pred, np.float32) and isinstance(ref_pred, np.float32):
-        return [alt_pred - ref_pred]
-    else:
-        return list(alt_pred - ref_pred)
+    return alt_pred - ref_pred
 
 
 def get_model_config(model_name: str) -> ModelConfig:
@@ -138,6 +128,8 @@ def score_variants(
                 transform(alt)[np.newaxis]
             )[0]
             score = model_config.scoring_fn(ref_prediction, alt_prediction)
+            # TODO: Cleaner code
+            score = [score] if score.size == 1 else list(score)
             tsv_writer.writerow(
                 [
                     variant.chrom,
