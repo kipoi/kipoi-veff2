@@ -71,8 +71,8 @@ class ModelConfig:
         if column_labels:
             if len(column_labels) == target_shape:
                 return [
-                    f"{self.model}/{c}/{scoring_fn['name']}"
-                    for scoring_fn in scoring_functions
+                    f"{self.model}/{c}/{scoring_function['name']}"
+                    for scoring_function in scoring_functions
                     for c in column_labels
                 ]
             else:
@@ -82,8 +82,8 @@ class ModelConfig:
                 )
         else:
             return [
-                f"{self.model}/{num+1}/{scoring_fn['name']}"
-                for scoring_fn in scoring_functions
+                f"{self.model}/{num+1}/{scoring_function['name']}"
+                for scoring_function in scoring_functions
                 for num in range(target_shape)
             ]
 
@@ -139,8 +139,8 @@ def score_variants(
                 transform(alt)[np.newaxis]
             )[0]
             scores = [
-                scoring_fn["func"](ref_prediction, alt_prediction)
-                for scoring_fn in scoring_functions
+                scoring_function["func"](ref_prediction, alt_prediction)
+                for scoring_function in scoring_functions
             ]
             # TODO: Cleaner code
             scores = [

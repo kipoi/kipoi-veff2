@@ -31,7 +31,7 @@ def validate_model(
         return model
 
 
-def validate_scoring_fn(
+def validate_scoring_function(
     ctx: click.Context, param: click.Parameter, scoring_function: tuple
 ) -> List[Dict[str, ScoringFunction]]:
     """[This is a callback for validation of scoring functions w.r.t
@@ -41,18 +41,20 @@ def validate_scoring_fn(
         out a standardized error message for a bad parameter
         if there are no scoring function]"""
     scoring_functions = []
-    for scoring_fn_name in list(scoring_function):
-        if scoring_fn_name not in scores.AVAILABLE_SCORING_FUNCTIONS:
+    for scoring_function_name in list(scoring_function):
+        if scoring_function_name not in scores.AVAILABLE_SCORING_FUNCTIONS:
             print(
-                f"Removing {scoring_fn_name} as it is not supported. \
+                f"Removing {scoring_function_name} as it is not supported. \
                   Please consult the documentation"
             )
         else:
-            func_def = f"kipoi_veff2.scores.{scoring_fn_name}"
+            func_def = f"kipoi_veff2.scores.{scoring_function_name}"
             mod_name, func_name = func_def.rsplit(".", 1)
             mod = importlib.import_module(mod_name)
             func = getattr(mod, func_name)
-            scoring_functions.append({"name": scoring_fn_name, "func": func})
+            scoring_functions.append(
+                {"name": scoring_function_name, "func": func}
+            )
 
     if not scoring_functions:
         raise click.BadParameter(
@@ -85,7 +87,7 @@ def validate_scoring_fn(
     required=True,
     multiple=True,
     type=str,
-    callback=validate_scoring_fn,
+    callback=validate_scoring_function,
     help="Use this function to score \
         Example: python kipoi_veff2/cli.py \
                  in.vcf in.fa out.tsv -m Basset \
