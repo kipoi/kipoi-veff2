@@ -35,7 +35,7 @@ def validate_model(
         )
 
 
-def validate_scoring_fn(
+def validate_scoring_function(
     ctx: click.Context, param: click.Parameter, scoring_function: tuple
 ) -> List[Dict[str, ScoringFunction]]:
     """[This is a callback for validation of scoring functions w.r.t
@@ -63,38 +63,6 @@ def validate_scoring_fn(
     if (
         list(scoring_function) and not scoring_functions
     ):  # For variant centered models
-        raise click.BadParameter(
-            f"Please select atleast one available scoring function."
-        )
-    return scoring_functions
-
-
-def validate_scoring_function(
-    ctx: click.Context, param: click.Parameter, scoring_function: tuple
-) -> List[Dict[str, ScoringFunction]]:
-    """[This is a callback for validation of scoring functions w.r.t
-        scores.AVAILABLE_SCORING_FUNCTIONS]
-    Raises:
-        click.BadParameter: [An exception that formats
-        out a standardized error message for a bad parameter
-        if there are no scoring function]"""
-    scoring_functions = []
-    for scoring_function_name in list(scoring_function):
-        if scoring_function_name not in scores.AVAILABLE_SCORING_FUNCTIONS:
-            print(
-                f"Removing {scoring_function_name} as it is not supported. \
-                  Please consult the documentation"
-            )
-        else:
-            func_def = f"kipoi_veff2.scores.{scoring_function_name}"
-            mod_name, func_name = func_def.rsplit(".", 1)
-            mod = importlib.import_module(mod_name)
-            func = getattr(mod, func_name)
-            scoring_functions.append(
-                {"name": scoring_function_name, "func": func}
-            )
-
-    if not scoring_functions:
         raise click.BadParameter(
             f"Please select atleast one available scoring function."
         )
@@ -140,7 +108,7 @@ def score_variants(
     input_gtf: Optional[click.Path],
     output_tsv: str,
     model: str,
-    scoring_functions: List[Dict[str, ScoringFunction]],
+    scoring_function: List[Dict[str, ScoringFunction]],
 ) -> None:
     """Perform variant effect prediction with the INPUT_VCF and INPUT_FASTA
     files using the MODELS and write them to OUTPUT_TSV"""
@@ -148,7 +116,7 @@ def score_variants(
     if model_group in variant_centered.MODEL_GROUPS:
         model_config = variant_centered.get_model_config(model_name=model)
         variant_centered.score_variants(
-            model_config, input_vcf, input_fasta, output_tsv, scoring_functions
+            model_config, input_vcf, input_fasta, output_tsv, scoring_function
         )
     elif model_group in interval_based.MODEL_GROUPS:
         model_config = interval_based.get_model_config(model_name=model)

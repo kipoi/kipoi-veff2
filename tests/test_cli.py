@@ -82,7 +82,7 @@ def test_cli_correct_use_different_flag(runner):
             str(test_dir / "data" / "out.tsv"),
             "--model",
             "DeepSEA/predict",
-            "--scoringfn",
+            "--scoring_function",
             "diff",
         ],
     )

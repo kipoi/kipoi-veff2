@@ -2,7 +2,7 @@ import csv
 from pathlib import Path
 
 from kipoi_veff2 import variant_centered
-from kipoi_veff2 import scoring_functions
+from kipoi_veff2 import scores
 
 import pytest
 
@@ -62,7 +62,7 @@ def test_variant_centered_scoring_single_scoring_function(
         vcf_file=vcf_file,
         fasta_file=fasta_file,
         output_file=output_file,
-        list_of_scoring_fn=[{"name": "diff", "func": scoring_functions.diff}],
+        scoring_functions=[{"name": "diff", "func": scores.diff}],
     )
     assert output_file.exists()
     with open(output_file, "r") as output_file_handle:
@@ -106,7 +106,7 @@ def test_variant_centered_scoring_single_scoring_function(
         ),
     ],
 )
-def test__variant_centered_scoring_multiple_scoring_functions(
+def test_variant_centered_scoring_multiple_scoring_functions(
     model_name, diff_header_name, logit_header_name, number_of_headers
 ):
     test_model_config = variant_centered.get_model_config(model_name)
@@ -124,9 +124,9 @@ def test__variant_centered_scoring_multiple_scoring_functions(
         vcf_file=vcf_file,
         fasta_file=fasta_file,
         output_file=output_file,
-        list_of_scoring_fn=[
-            {"name": "diff", "func": scoring_functions.diff},
-            {"name": "logit", "func": scoring_functions.logit},
+        scoring_functions=[
+            {"name": "diff", "func": scores.diff},
+            {"name": "logit", "func": scores.logit},
         ],
     )
     assert output_file.exists()
