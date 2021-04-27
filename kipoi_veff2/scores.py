@@ -5,15 +5,25 @@ import numpy as np
 
 AVAILABLE_SCORING_FUNCTIONS = [
     "diff",
+    "alt",
+    "ref",
     "logit",
-    "logitalt",
-    "logitref",
+    "logit_alt",
+    "logit_ref",
     "deepsea_effect",
 ]
 
 
 def diff(ref_pred: Any, alt_pred: Any) -> List:
     return alt_pred - ref_pred
+
+
+def ref(ref_pred: Any, alt_pred: Any) -> List:
+    return ref_pred
+
+
+def alt(ref_pred: Any, alt_pred: Any) -> List:
+    return alt_pred
 
 
 def logit(ref_pred: Any, alt_pred: Any) -> List:
@@ -28,7 +38,7 @@ def logit(ref_pred: Any, alt_pred: Any) -> List:
     return diffs
 
 
-def logitalt(ref_pred: Any, alt_pred: Any) -> List:
+def logit_alt(ref_pred: Any, alt_pred: Any) -> List:
     preds = {"ref": ref_pred, "alt": alt_pred}
     # TODO: Should it be checking only alt_pred?
     if np.any([(preds[k].min() < 0 or preds[k].max() > 1) for k in preds]):
@@ -39,7 +49,7 @@ def logitalt(ref_pred: Any, alt_pred: Any) -> List:
     return logits
 
 
-def logitref(ref_pred: Any, alt_pred: Any) -> List:
+def logit_ref(ref_pred: Any, alt_pred: Any) -> List:
     preds = {"ref": ref_pred, "alt": alt_pred}
     # TODO: Should it be checking only ref_pred?
     if np.any([(preds[k].min() < 0 or preds[k].max() > 1) for k in preds]):

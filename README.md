@@ -36,7 +36,7 @@ pytest
 ```
 python kipoi_veff2/cli.py in.vcf in.fasta out.tsv -m "DeepSEA/predict" -s "diff" -s "logit"
 ```
-Read why scoringfn=diff,logit is not favored by click [here](https://github.com/pallets/click/issues/484)
+Read why scoring_function=diff,logit is not favored by click [here](https://github.com/pallets/click/issues/484)
 
 ### pre-commit hooks - black and flake8
 

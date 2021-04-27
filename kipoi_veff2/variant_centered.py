@@ -13,6 +13,8 @@ from kipoiseq.transforms import ReorderedOneHot
 
 MODEL_GROUPS = ["Basset", "DeepBind", "DeepSEA"]
 
+ScoringFunction = Callable[[Any, Any], List]
+
 
 @dataclass
 class ModelConfig:
@@ -61,7 +63,7 @@ class ModelConfig:
             return self.required_sequence_length
 
     def get_column_labels(
-        self, list_of_scoring_fn: List[Dict[str, Callable[[Any, Any], List]]]
+        self, scoring_functions: List[Dict[str, ScoringFunction]]
     ) -> List:
         targets = self.model_description.schema.targets
         column_labels = targets.column_labels
@@ -70,7 +72,7 @@ class ModelConfig:
             if len(column_labels) == target_shape:
                 return [
                     f"{self.model}/{c}/{scoring_fn['name']}"
-                    for scoring_fn in list_of_scoring_fn
+                    for scoring_fn in scoring_functions
                     for c in column_labels
                 ]
             else:
@@ -81,7 +83,7 @@ class ModelConfig:
         else:
             return [
                 f"{self.model}/{num+1}/{scoring_fn['name']}"
-                for scoring_fn in list_of_scoring_fn
+                for scoring_fn in scoring_functions
                 for num in range(target_shape)
             ]
 
@@ -114,13 +116,13 @@ def score_variants(
     vcf_file: str,
     fasta_file: str,
     output_file: Union[str, Path],
-    list_of_scoring_fn: List[Dict[str, Callable[[Any, Any], List]]],
+    scoring_functions: List[Dict[str, ScoringFunction]],
 ) -> None:
     kipoi_model = kipoi.get_model(model_config.model)
     sequence_length = model_config.get_required_sequence_length()
     transform = model_config.get_transform()
     column_labels = model_config.get_column_labels(
-        list_of_scoring_fn=list_of_scoring_fn
+        scoring_functions=scoring_functions
     )
     with open(output_file, "w") as output_tsv:
         tsv_writer = csv.writer(output_tsv, delimiter="\t")
@@ -138,7 +140,7 @@ def score_variants(
             )[0]
             scores = [
                 scoring_fn["func"](ref_prediction, alt_prediction)
-                for scoring_fn in list_of_scoring_fn
+                for scoring_fn in scoring_functions
             ]
             # TODO: Cleaner code
             scores = [

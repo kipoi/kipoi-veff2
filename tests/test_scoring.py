@@ -2,7 +2,7 @@ import csv
 from pathlib import Path
 
 from kipoi_veff2 import variant_centered
-from kipoi_veff2 import scoring_functions
+from kipoi_veff2 import scores
 
 import pytest
 
@@ -63,7 +63,7 @@ def test_scoring_single_scoring_function(
         vcf_file=vcf_file,
         fasta_file=fasta_file,
         output_file=output_file,
-        list_of_scoring_fn=[{"name": "diff", "func": scoring_functions.diff}],
+        scoring_functions=[{"name": "diff", "func": scores.diff}],
     )
     assert output_file.exists()
     with open(output_file, "r") as output_file_handle:
