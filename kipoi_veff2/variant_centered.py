@@ -11,7 +11,7 @@ from kipoiseq.dataclasses import Interval, Variant
 from kipoiseq.extractors import VariantSeqExtractor
 from kipoiseq.transforms import ReorderedOneHot
 
-MODELGROUPS = ["Basset", "DeepBind", "DeepSEA"]
+MODEL_GROUPS = ["Basset", "DeepBind", "DeepSEA"]
 
 
 @dataclass
@@ -39,15 +39,9 @@ class ModelConfig:
                 dataloader_args = self.dataloader.default_args
                 self.transform = ReorderedOneHot(
                     alphabet="ACGT",
-                    dtype=dataloader_args["dtype"]
-                    if "dtype" in dataloader_args
-                    else None,
-                    alphabet_axis=dataloader_args["alphabet_axis"]
-                    if "alphabet_axis" in dataloader_args
-                    else 1,
-                    dummy_axis=dataloader_args["dummy_axis"]
-                    if "dummy_axis" in dataloader_args
-                    else None,
+                    dtype=dataloader_args.get("dtype", None),
+                    alphabet_axis=dataloader_args.get("alphabet_axis", 1),
+                    dummy_axis=dataloader_args.get("dummy_axis", None),
                 )
             else:
                 raise IOError("Only supporting sequence based models for now")
@@ -145,6 +139,10 @@ def score_variants(
             scores = [
                 scoring_fn["func"](ref_prediction, alt_prediction)
                 for scoring_fn in list_of_scoring_fn
+            ]
+            # TODO: Cleaner code
+            scores = [
+                [score] if score.size == 1 else list(score) for score in scores
             ]
             scores = list(itertools.chain.from_iterable(scores))
             tsv_writer.writerow(

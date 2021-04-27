@@ -58,7 +58,6 @@ def test_scoring_single_scoring_function(
     output_file = Path(
         test_dir / "data" / f"out.{model_name.replace('/', '_')}.tsv"
     )
-
     variant_centered.score_variants(
         model_config=model_config,
         vcf_file=vcf_file,
@@ -72,72 +71,6 @@ def test_scoring_single_scoring_function(
         header = next(tsv_reader)
         assert len(header) == number_of_headers
         assert header[number_of_headers - 1] == header_name
-        row = next(tsv_reader)
-        assert row[2] == ""
-        assert len(row) == number_of_headers
-    output_file.unlink()
-
-
-@pytest.mark.parametrize(
-    "model_name, diff_header_name, logit_header_name, number_of_headers",
-    [
-        ("Basset", "Basset/8988T/diff", "Basset/PANC/logit", 333),
-        (
-            "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF",
-            "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF/1/diff",
-            "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF/1/logit",
-            7,
-        ),
-        (
-            "DeepSEA/beluga",
-            "DeepSEA/beluga/8988T_DNase_None/diff",
-            "DeepSEA/beluga/Osteoblasts_H4K20me1_None/logit",
-            4009,
-        ),
-        (
-            "DeepSEA/predict",
-            "DeepSEA/predict/8988T_DNase_None/diff",
-            "DeepSEA/predict/Osteoblasts_H3K9me3_None/logit",
-            1843,
-        ),
-        (
-            "DeepSEA/variantEffects",
-            "DeepSEA/variantEffects/8988T_DNase_None/diff",
-            "DeepSEA/variantEffects/Osteoblasts_H3K9me3_None/logit",
-            1843,
-        ),
-    ],
-)
-def test_scoring_multiple_scoring_functions(
-    model_name, diff_header_name, logit_header_name, number_of_headers
-):
-    test_model_config = variant_centered.get_model_config(model_name)
-    assert test_model_config.get_model() == model_name
-    test_dir = Path(__file__).resolve().parent
-    vcf_file = str(test_dir / "data" / "singlevariant.vcf")
-    fasta_file = str(test_dir / "data" / "hg38_chr22.fa")
-    model_config = test_model_config
-    output_file = Path(
-        test_dir / "data" / f"out.{model_name.replace('/', '_')}.tsv"
-    )
-
-    variant_centered.score_variants(
-        model_config=model_config,
-        vcf_file=vcf_file,
-        fasta_file=fasta_file,
-        output_file=output_file,
-        list_of_scoring_fn=[
-            {"name": "diff", "func": scoring_functions.diff},
-            {"name": "logit", "func": scoring_functions.logit},
-        ],
-    )
-    assert output_file.exists()
-    with open(output_file, "r") as output_file_handle:
-        tsv_reader = csv.reader(output_file_handle, delimiter="\t")
-        header = next(tsv_reader)
-        assert len(header) == number_of_headers
-        assert header[5] == diff_header_name
-        assert header[number_of_headers - 1] == logit_header_name
         row = next(tsv_reader)
         assert row[2] == ""
         assert len(row) == number_of_headers

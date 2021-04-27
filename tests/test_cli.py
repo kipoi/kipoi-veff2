@@ -11,7 +11,7 @@ def runner():
     yield runner
 
 
-def test_cli_correct_use(runner):
+def test_cli_correct_use_model(runner):
     test_dir = Path(__file__).resolve().parent
     result = runner.invoke(
         cli.score_variants,
