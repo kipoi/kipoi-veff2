@@ -2,6 +2,8 @@ import csv
 from pathlib import Path
 
 from kipoi_veff2 import variant_centered
+from kipoi_veff2 import scores
+
 import pytest
 
 
@@ -21,30 +23,32 @@ def test_modelconfig():
 @pytest.mark.parametrize(
     "model_name, header_name, number_of_headers",
     [
-        ("Basset", "Basset/PANC", 169),
+        ("Basset", "Basset/PANC/diff", 169),
         (
             "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF",
-            "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF/1",
+            "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF/1/diff",
             6,
         ),
         (
             "DeepSEA/beluga",
-            "DeepSEA/beluga/Osteoblasts_H4K20me1_None",
+            "DeepSEA/beluga/Osteoblasts_H4K20me1_None/diff",
             2007,
         ),
         (
             "DeepSEA/predict",
-            "DeepSEA/predict/Osteoblasts_H3K9me3_None",
+            "DeepSEA/predict/Osteoblasts_H3K9me3_None/diff",
             924,
         ),
         (
             "DeepSEA/variantEffects",
-            "DeepSEA/variantEffects/Osteoblasts_H3K9me3_None",
+            "DeepSEA/variantEffects/Osteoblasts_H3K9me3_None/diff",
             924,
         ),
     ],
 )
-def test_scoring(model_name, header_name, number_of_headers):
+def test_scoring_single_scoring_function(
+    model_name, header_name, number_of_headers
+):
     test_model_config = variant_centered.get_model_config(model_name)
     assert test_model_config.get_model() == model_name
     test_dir = Path(__file__).resolve().parent
@@ -59,6 +63,7 @@ def test_scoring(model_name, header_name, number_of_headers):
         vcf_file=vcf_file,
         fasta_file=fasta_file,
         output_file=output_file,
+        scoring_functions=[{"name": "diff", "func": scores.diff}],
     )
     assert output_file.exists()
     with open(output_file, "r") as output_file_handle:

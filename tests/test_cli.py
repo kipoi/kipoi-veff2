@@ -21,13 +21,35 @@ def test_cli_correct_use_model(runner):
             str(test_dir / "data" / "out.tsv"),
             "-m",
             "DeepSEA/predict",
+            "-s",
+            "diff",
         ],
     )
     assert result.exit_code == 0
     Path(test_dir / "data" / "out.tsv").unlink()
 
 
-def test_cli_correct_use_single_model_diff_flag(runner):
+def test_cli_correct_use_multiple_scoring_function(runner):
+    test_dir = Path(__file__).resolve().parent
+    result = runner.invoke(
+        cli.score_variants,
+        [
+            str(test_dir / "data" / "test.vcf"),
+            str(test_dir / "data" / "hg38_chr22.fa"),
+            str(test_dir / "data" / "out.tsv"),
+            "-m",
+            "DeepSEA/predict",
+            "-s",
+            "diff",
+            "-s",
+            "logit",
+        ],
+    )
+    assert result.exit_code == 0
+    Path(test_dir / "data" / "out.tsv").unlink()
+
+
+def test_cli_correct_use_different_flag(runner):
     test_dir = Path(__file__).resolve().parent
     result = runner.invoke(
         cli.score_variants,
@@ -37,6 +59,48 @@ def test_cli_correct_use_single_model_diff_flag(runner):
             str(test_dir / "data" / "out.tsv"),
             "--model",
             "DeepSEA/predict",
+            "--scoring_function",
+            "diff",
+        ],
+    )
+    assert result.exit_code == 0
+    Path(test_dir / "data" / "out.tsv").unlink()
+
+
+def test_cli_invalid_scoring_function(runner):
+    test_dir = Path(__file__).resolve().parent
+    result = runner.invoke(
+        cli.score_variants,
+        [
+            str(test_dir / "data" / "test.vcf"),
+            str(test_dir / "data" / "hg38_chr22.fa"),
+            str(test_dir / "data" / "out.tsv"),
+            "-m",
+            "DeepSEA/predict",
+            "-s",
+            "undefined",
+        ],
+    )
+    assert result.exit_code == 2
+    assert (
+        "Please select atleast one available scoring function" in result.output
+    )
+
+
+def test_cli_valid_and_invalid_scoring_function(runner):
+    test_dir = Path(__file__).resolve().parent
+    result = runner.invoke(
+        cli.score_variants,
+        [
+            str(test_dir / "data" / "test.vcf"),
+            str(test_dir / "data" / "hg38_chr22.fa"),
+            str(test_dir / "data" / "out.tsv"),
+            "-m",
+            "DeepSEA/predict",
+            "-s",
+            "logit",
+            "-s",
+            "undefined",
         ],
     )
     assert result.exit_code == 0
@@ -46,7 +110,7 @@ def test_cli_correct_use_single_model_diff_flag(runner):
 def test_cli_input_vcf_does_not_exist(runner):
     result = runner.invoke(
         cli.score_variants,
-        ["in.vcf", "in.fa", "out.tsv", "-m", "DeepSEA/predict"],
+        ["in.vcf", "in.fa", "out.tsv", "-m", "DeepSEA/predict", "-s", "diff"],
     )
     assert result.exit_code == 2
     assert "Error: Invalid value for 'INPUT_VCF'" in result.output
@@ -61,6 +125,8 @@ def test_cli_missing_fasta(runner):
             str(test_dir / "data" / "out.tsv"),
             "-m",
             "DeepSEA/predict",
+            "-s",
+            "diff",
         ],
     )
     assert result.exit_code == 2
@@ -76,6 +142,8 @@ def test_cli_missing_output(runner):
             str(test_dir / "data" / "hg38_chr22.fa"),
             "-m",
             "DeepSEA/predict",
+            "-s",
+            "diff",
         ],
     )
     assert result.exit_code == 2
@@ -90,6 +158,8 @@ def test_cli_missing_model(runner):
             str(test_dir / "data" / "test.vcf"),
             str(test_dir / "data" / "hg38_chr22.fa"),
             str(test_dir / "data" / "out.tsv"),
+            "-s",
+            "diff",
         ],
     )
     assert result.exit_code == 2
@@ -106,6 +176,8 @@ def test_cli_wrong_model(runner):
             str(test_dir / "data" / "out.tsv"),
             "-m",
             "Dummy",
+            "-s",
+            "diff",
         ],
     )
     assert result.exit_code == 2
