@@ -52,7 +52,7 @@ def validate_scoring_function(
                   Please consult the documentation"
             )
         else:
-            func_def = f"kipoi_veff2.scoring_functions.{scoring_function_name}"
+            func_def = f"kipoi_veff2.scores.{scoring_function_name}"
             mod_name, func_name = func_def.rsplit(".", 1)
             mod = importlib.import_module(mod_name)
             func = getattr(mod, func_name)
