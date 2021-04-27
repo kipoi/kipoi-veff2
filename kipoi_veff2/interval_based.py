@@ -5,7 +5,7 @@ from typing import Any, Dict, Union, List
 from dataclasses import dataclass
 import kipoi
 
-MODELGROUPS = ["MMSplice"]
+MODEL_GROUPS = ["MMSplice"]
 
 
 @dataclass

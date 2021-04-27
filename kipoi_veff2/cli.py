@@ -3,15 +3,17 @@ import importlib
 from typing import Any, Callable, Dict, List, Optional
 
 from kipoi_veff2 import interval_based
-from kipoi_veff2 import scoring_functions
+from kipoi_veff2 import scores
 from kipoi_veff2 import variant_centered
+
+ScoringFunction = Callable[[Any, Any], List]
 
 
 def validate_model(
     ctx: click.Context, param: click.Parameter, model: str
 ) -> str:
     """[This is a callback for validation of requested model w.r.t
-        variant_centered.MODELGROUPS and interval_based.MODELGROUPS]
+        variant_centered.MODEL_GROUPS and interval_based.MODEL_GROUPS]
     Raises:
         click.BadParameter: [An exception that formats
         out a standardized error message for a bad parameter
@@ -19,8 +21,8 @@ def validate_model(
     """
     model_group = model.split("/")[0]
     if (
-        model_group in variant_centered.MODELGROUPS
-        or model_group in interval_based.MODELGROUPS
+        model_group in variant_centered.MODEL_GROUPS
+        or model_group in interval_based.MODEL_GROUPS
     ):
         return model
     else:
@@ -34,38 +36,69 @@ def validate_model(
 
 
 def validate_scoring_fn(
-    ctx: click.Context, param: click.Parameter, scoringfn: tuple
-) -> List[Dict[str, Callable[[Any, Any], List]]]:
+    ctx: click.Context, param: click.Parameter, scoring_function: tuple
+) -> List[Dict[str, ScoringFunction]]:
     """[This is a callback for validation of scoring functions w.r.t
-        scoring_functions.AVAILABLE_SCORING_FUNCTIONS]
+        scores.AVAILABLE_SCORING_FUNCTIONS]
     Raises:
         click.BadParameter: [An exception that formats
         out a standardized error message for a bad parameter
         if there are no scoring function]"""
-    list_of_scoring_fn = []
-    for scoring_fn_name in list(scoringfn):
-        if (
-            scoring_fn_name
-            not in scoring_functions.AVAILABLE_SCORING_FUNCTIONS
-        ):
+    scoring_functions = []
+    for scoring_function_name in list(scoring_function):
+        if scoring_function_name not in scores.AVAILABLE_SCORING_FUNCTIONS:
             print(
-                f"Removing {scoring_fn_name} as it is not supported. \
+                f"Removing {scoring_function_name} as it is not supported. \
                   Please consult the documentation"
             )
         else:
-            func_def = f"kipoi_veff2.scoring_functions.{scoring_fn_name}"
+            func_def = f"kipoi_veff2.scoring_functions.{scoring_function_name}"
             mod_name, func_name = func_def.rsplit(".", 1)
             mod = importlib.import_module(mod_name)
             func = getattr(mod, func_name)
-            list_of_scoring_fn.append({"name": scoring_fn_name, "func": func})
+            scoring_functions.append(
+                {"name": scoring_function_name, "func": func}
+            )
 
     if (
-        list(scoringfn) and not list_of_scoring_fn
+        list(scoring_function) and not scoring_functions
     ):  # For variant centered models
         raise click.BadParameter(
             f"Please select atleast one available scoring function."
         )
-    return list_of_scoring_fn
+    return scoring_functions
+
+
+def validate_scoring_function(
+    ctx: click.Context, param: click.Parameter, scoring_function: tuple
+) -> List[Dict[str, ScoringFunction]]:
+    """[This is a callback for validation of scoring functions w.r.t
+        scores.AVAILABLE_SCORING_FUNCTIONS]
+    Raises:
+        click.BadParameter: [An exception that formats
+        out a standardized error message for a bad parameter
+        if there are no scoring function]"""
+    scoring_functions = []
+    for scoring_function_name in list(scoring_function):
+        if scoring_function_name not in scores.AVAILABLE_SCORING_FUNCTIONS:
+            print(
+                f"Removing {scoring_function_name} as it is not supported. \
+                  Please consult the documentation"
+            )
+        else:
+            func_def = f"kipoi_veff2.scores.{scoring_function_name}"
+            mod_name, func_name = func_def.rsplit(".", 1)
+            mod = importlib.import_module(mod_name)
+            func = getattr(mod, func_name)
+            scoring_functions.append(
+                {"name": scoring_function_name, "func": func}
+            )
+
+    if not scoring_functions:
+        raise click.BadParameter(
+            f"Please select atleast one available scoring function."
+        )
+    return scoring_functions
 
 
 @click.command()
@@ -91,11 +124,11 @@ def validate_scoring_fn(
 )
 @click.option(
     "-s",
-    "--scoringfn",
+    "--scoring_function",
     required=False,
     multiple=True,
     type=str,
-    callback=validate_scoring_fn,
+    callback=validate_scoring_function,
     help="Use this function to score \
         Example: python kipoi_veff2/cli.py \
                  in.vcf in.fa out.tsv -m Basset \
@@ -107,17 +140,17 @@ def score_variants(
     input_gtf: Optional[click.Path],
     output_tsv: str,
     model: str,
-    scoringfn: List[Dict[str, Callable[[Any, Any], List]]],
+    scoring_functions: List[Dict[str, ScoringFunction]],
 ) -> None:
     """Perform variant effect prediction with the INPUT_VCF and INPUT_FASTA
     files using the MODELS and write them to OUTPUT_TSV"""
     model_group = model.split("/")[0]
-    if model_group in variant_centered.MODELGROUPS:
+    if model_group in variant_centered.MODEL_GROUPS:
         model_config = variant_centered.get_model_config(model_name=model)
         variant_centered.score_variants(
-            model_config, input_vcf, input_fasta, output_tsv, scoringfn
+            model_config, input_vcf, input_fasta, output_tsv, scoring_functions
         )
-    elif model_group in interval_based.MODELGROUPS:
+    elif model_group in interval_based.MODEL_GROUPS:
         model_config = interval_based.get_model_config(model_name=model)
         interval_based.score_variants(
             model_config, input_vcf, input_fasta, input_gtf, output_tsv
