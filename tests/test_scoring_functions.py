@@ -19,7 +19,7 @@ def test_ref():
 def test_alt():
     ref_pred = np.linspace(0.5, 1, 5)
     alt_pred = np.linspace(0.1, 0.5, 5)
-    assert np.all(scores.ref(ref_pred, alt_pred) == alt_pred)
+    assert np.all(scores.alt(ref_pred, alt_pred) == alt_pred)
 
 
 def test_logit():
