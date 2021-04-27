@@ -71,7 +71,7 @@ class ModelConfig:
         variant_column_labels = ["#CHROM", "POS", "ID", "REF", "ALT"]
         if column_labels:
             if len(column_labels) == target_shape:
-                return [
+                return variant_column_labels + [
                     f"{self.model}/{c}/{scoring_function['name']}"
                     for scoring_function in scoring_functions
                     for c in column_labels
