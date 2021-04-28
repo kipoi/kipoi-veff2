@@ -32,9 +32,6 @@ class ModelConfig:
         else:
             return False
 
-    def get_model(self) -> str:
-        return self.model
-
     def get_transform(self) -> Any:
         if self.transform is None:
             if self.is_sequence_model():
@@ -90,6 +87,9 @@ class ModelConfig:
 
 
 def get_model_config(model_name: str) -> ModelConfig:
+    # It is important to create a new dictionary for each
+    # model under a model group since required sequence length
+    # and transform can vary
     return ModelConfig(model=model_name)
 
 
@@ -143,7 +143,8 @@ def score_variants(
             ]
             # TODO: Cleaner code
             scores = [
-                [score] if score.size == 1 else list(score) for score in scores
+                [score] if np.isscalar(score) else list(score)
+                for score in scores
             ]
             scores = list(itertools.chain.from_iterable(scores))
             tsv_writer.writerow(

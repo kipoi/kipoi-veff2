@@ -9,7 +9,7 @@ import pytest
 
 def test_variant_centered_modelconfig():
     test_model_config = variant_centered.get_model_config("DeepSEA/predict")
-    assert test_model_config.get_model() == "DeepSEA/predict"
+    assert test_model_config.model == "DeepSEA/predict"
     assert test_model_config.get_required_sequence_length() == 1000
     assert (
         type(test_model_config.get_transform()).__name__ == "ReorderedOneHot"
@@ -50,7 +50,7 @@ def test_variant_centered_scoring_single_scoring_function(
     model_name, header_name, number_of_headers
 ):
     test_model_config = variant_centered.get_model_config(model_name)
-    assert test_model_config.get_model() == model_name
+    assert test_model_config.model == model_name
     test_dir = Path(__file__).resolve().parent
     vcf_file = str(test_dir / "data" / "singlevariant.vcf")
     fasta_file = str(test_dir / "data" / "hg38_chr22.fa")
@@ -110,7 +110,7 @@ def test_variant_centered_scoring_multiple_scoring_functions(
     model_name, diff_header_name, logit_header_name, number_of_headers
 ):
     test_model_config = variant_centered.get_model_config(model_name)
-    assert test_model_config.get_model() == model_name
+    assert test_model_config.model == model_name
     test_dir = Path(__file__).resolve().parent
     vcf_file = str(test_dir / "data" / "singlevariant.vcf")
     fasta_file = str(test_dir / "data" / "hg38_chr22.fa")

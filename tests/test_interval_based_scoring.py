@@ -7,10 +7,10 @@ import pytest
 
 
 def test_interval_based_modelconfig():
-    test_model_config = interval_based.get_model_config(
+    test_model_config = interval_based.INTERVAL_BASED_MODEL_CONFIGS[
         "MMSplice/pathogenicity"
-    )
-    assert test_model_config.get_model() == "MMSplice/pathogenicity"
+    ]
+    assert test_model_config.model == "MMSplice/pathogenicity"
     assert (
         test_model_config.model_description.info.authors[0].name == "Jun Cheng"
     )
@@ -68,7 +68,7 @@ def test_interval_based_scoring(
         interval_based_test_dir / f"out.{model_name.replace('/', '_')}.tsv"
     )
 
-    model_config = interval_based.ModelConfig(model_name)
+    model_config = interval_based.INTERVAL_BASED_MODEL_CONFIGS[model_name]
     interval_based.score_variants(
         model_config=model_config,
         vcf_file=vcf_file,

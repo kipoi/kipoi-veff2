@@ -1,8 +1,9 @@
 import csv
 from pathlib import Path
-from typing import Any, Dict, Union, List
+from typing import Any, Callable, Dict, Union, List
 
 from dataclasses import dataclass
+import numpy as np
 import kipoi
 
 MODEL_GROUPS = ["MMSplice"]
@@ -11,15 +12,14 @@ MODEL_GROUPS = ["MMSplice"]
 @dataclass
 class ModelConfig:
     model: str
+    cli_to_dataloader_parameter_map: Dict[str, str]
+    get_variant_info: Callable[[Dict[str, Any]], Dict[str, str]]
 
     def __post_init__(self):
         self.model_description = kipoi.get_model_descr(self.model)
         self.kipoi_model_with_dataloader = kipoi.get_model(
             self.model, source="kipoi", with_dataloader=True
         )
-
-    def get_model(self) -> str:
-        return self.model
 
     def get_column_labels(self) -> List:
         targets = self.model_description.schema.targets
@@ -42,37 +42,115 @@ class ModelConfig:
             ]
 
     # TODO: Should Any be Callable?
-    def get_dataloader(self, params: Dict[str, str]) -> Any:
-        dataloader_args = list(
-            self.kipoi_model_with_dataloader.default_dataloader.args.keys()
-        )
-        # TODO: This most likely will vary across model groups which we can
-        # control through get_model_config or dataloader_args
-        necessary_file_types = ["gtf", "fasta", "vcf"]
-        if not all(item in params.keys() for item in necessary_file_types):
+    def get_dataloader(self, cli_params: Dict[str, str]) -> Any:
+        dataloader_args = {}
+        if sorted(cli_params.keys()) != sorted(
+            self.cli_to_dataloader_parameter_map.keys()
+        ):
+            # TODO: More helpful error msg - which ones are missing?
             raise IOError(
-                "Please provide a dictionary with atleast gtf,\
-                fasta and vcf file locations"
+                "The dataloader is missing one or more required arguments"
             )
-        for file_type in necessary_file_types:
-            matching_dl_param = [
-                param for param in dataloader_args if file_type in param
-            ]
-            if not matching_dl_param:
-                raise IOError(
-                    f"Cannot find a matching parameter for {file_type}"
-                )
-            if len(matching_dl_param) > 1:
-                raise IOError(
-                    f"Found too many matching parameters for \
-                        {file_type} in {matching_dl_param}"
-                )
-            params[matching_dl_param[0]] = params.pop(file_type)
-        return self.kipoi_model_with_dataloader.default_dataloader(**params)
+        for (
+            cli_param_name,
+            dataloader_param_name,
+        ) in self.cli_to_dataloader_parameter_map.items():
+            dataloader_args[dataloader_param_name] = cli_params[cli_param_name]
+        return self.kipoi_model_with_dataloader.default_dataloader(
+            **dataloader_args
+        )
 
 
-def get_model_config(model_name: str) -> ModelConfig:
-    return ModelConfig(model=model_name)
+INTERVAL_BASED_MODEL_CONFIGS = {
+    "MMSplice/modularPredictions": ModelConfig(
+        model="MMSplice/modularPredictions",
+        cli_to_dataloader_parameter_map={
+            "gtf_file": "gtf",
+            "vcf_file": "vcf_file",
+            "fasta_file": "fasta_file",
+        },
+        get_variant_info=lambda batch, index: {
+            "chrom": batch["metadata"]["variant"]["chrom"][index],
+            "pos": batch["metadata"]["variant"]["pos"][index],
+            "id": (
+                f'{batch["metadata"]["variant"]["annotation"][index]}'
+                f':{batch["metadata"]["exon"]["exon_id"][index]}'
+            ),
+            "ref": batch["metadata"]["variant"]["ref"][index],
+            "alt": batch["metadata"]["variant"]["alt"][index],
+        },
+    ),
+    "MMSplice/deltaLogitPSI": ModelConfig(
+        model="MMSplice/deltaLogitPSI",
+        cli_to_dataloader_parameter_map={
+            "gtf_file": "gtf",
+            "vcf_file": "vcf_file",
+            "fasta_file": "fasta_file",
+        },
+        get_variant_info=lambda batch, index: {
+            "chrom": batch["metadata"]["variant"]["chrom"][index],
+            "pos": batch["metadata"]["variant"]["pos"][index],
+            "id": (
+                f'{batch["metadata"]["variant"]["annotation"][index]}'
+                f':{batch["metadata"]["exon"]["exon_id"][index]}'
+            ),
+            "ref": batch["metadata"]["variant"]["ref"][index],
+            "alt": batch["metadata"]["variant"]["alt"][index],
+        },
+    ),
+    "MMSplice/splicingEfficiency": ModelConfig(
+        model="MMSplice/splicingEfficiency",
+        cli_to_dataloader_parameter_map={
+            "gtf_file": "gtf",
+            "vcf_file": "vcf_file",
+            "fasta_file": "fasta_file",
+        },
+        get_variant_info=lambda batch, index: {
+            "chrom": batch["metadata"]["variant"]["chrom"][index],
+            "pos": batch["metadata"]["variant"]["pos"][index],
+            "id": (
+                f'{batch["metadata"]["variant"]["annotation"][index]}'
+                f':{batch["metadata"]["exon"]["exon_id"][index]}'
+            ),
+            "ref": batch["metadata"]["variant"]["ref"][index],
+            "alt": batch["metadata"]["variant"]["alt"][index],
+        },
+    ),
+    "MMSplice/mtsplice": ModelConfig(
+        model="MMSplice/mtsplice",
+        cli_to_dataloader_parameter_map={
+            "gtf_file": "gtf",
+            "vcf_file": "vcf_file",
+            "fasta_file": "fasta_file",
+        },
+        get_variant_info=lambda batch, index: {
+            "chrom": batch["metadata"]["variant"]["chrom"][index],
+            "pos": batch["metadata"]["variant"]["pos"][index],
+            "id": (
+                f'{batch["metadata"]["variant"]["annotation"][index]}'
+                f':{batch["metadata"]["exon"]["exon_id"][index]}'
+            ),
+            "ref": batch["metadata"]["variant"]["ref"][index],
+            "alt": batch["metadata"]["variant"]["alt"][index],
+        },
+    ),
+    "MMSplice/pathogenicity": ModelConfig(
+        model="MMSplice/pathogenicity",
+        cli_to_dataloader_parameter_map={
+            "gtf_file": "gtf",
+            "vcf_file": "vcf_file",
+            "fasta_file": "fasta_file",
+        },
+        get_variant_info=lambda batch, index: {
+            "chrom": batch["metadata"]["variant"]["chrom"][index],
+            "pos": batch["metadata"]["variant"]["pos"][index],
+            "id": f"""{batch["metadata"]["variant"]["annotation"][index]}
+            :{batch["metadata"]["exon"]["exon_id"][index]}""",
+            "ref": batch["metadata"]["variant"]["ref"][index],
+            "alt": batch["metadata"]["variant"]["alt"][index],
+        },
+    ),
+}
 
 
 def score_variants(
@@ -85,37 +163,32 @@ def score_variants(
     # TODO: This will download the model weights - any way around it?
     dataloader = model_config.get_dataloader(
         {
-            "fasta": fasta_file,
-            "gtf": gtf_file,
-            "vcf": vcf_file,
+            "fasta_file": fasta_file,
+            "gtf_file": gtf_file,
+            "vcf_file": vcf_file,
         }
     )
     with open(output_file, "w") as output_tsv:
         tsv_writer = csv.writer(output_tsv, delimiter="\t")
         tsv_writer.writerow(model_config.get_column_labels())
         for batch in dataloader.batch_iter():
-            # TODO: Should we check if inputs, metadata, exon_id
-            #  are present in batch?
             predictions = (
                 model_config.kipoi_model_with_dataloader.predict_on_batch(
                     batch["inputs"]
                 )
             )
-            variant = batch["metadata"]["variant"]
-            exon_id = batch["metadata"]["exon"]["exon_id"]
+            if np.isscalar(predictions):
+                predictions = [predictions]
             for index, pred in enumerate(predictions):
-                if pred.size == 1:
-                    pred = [pred]
-                else:
-                    pred = list(pred)
+                pred = [pred] if np.isscalar(pred) else list(pred)
+                variant_info = model_config.get_variant_info(batch, index)
                 tsv_writer.writerow(
                     [
-                        variant["chrom"][index],
-                        variant["pos"][index],
-                        # TODO: is this correct?
-                        f'{variant["annotation"][index]}:{exon_id[index]}',
-                        variant["ref"][index],
-                        variant["alt"][index],
+                        variant_info["chrom"],
+                        variant_info["pos"],
+                        variant_info["id"],
+                        variant_info["ref"],
+                        variant_info["alt"],
                     ]
                     + pred
                 )

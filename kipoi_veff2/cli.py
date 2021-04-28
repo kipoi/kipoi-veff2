@@ -87,8 +87,10 @@ def validate_scoring_function(
     type=str,
     callback=validate_model,
     help="Run variant effect prediction using this model. \
-        Example: python kipoi_veff2/cli.py in.vcf in.fa \
-                 out.tsv -m Basset -s diff",
+        Example (Variant centered): python kipoi_veff2/cli.py in.vcf in.fa \
+                 out.tsv -m Basset -s diff\
+        Example (Interval based): python kipoi_veff2/cli.py in.vcf in.fa\
+                -g in.gtf -m 'MMSplice/modularPredictions' out.tsv",
 )
 @click.option(
     "-s",
@@ -98,9 +100,11 @@ def validate_scoring_function(
     type=str,
     callback=validate_scoring_function,
     help="Use this function to score \
-        Example: python kipoi_veff2/cli.py \
+        Example (variant centered only): python kipoi_veff2/cli.py \
                  in.vcf in.fa out.tsv -m Basset \
-                 -s diff -s logit",
+                 -s diff -s logit. \
+        For interval based models scoring functions are redundant as\
+        the model perform the scoring as part of prediction",
 )
 def score_variants(
     input_vcf: click.Path,
@@ -119,7 +123,9 @@ def score_variants(
             model_config, input_vcf, input_fasta, output_tsv, scoring_function
         )
     elif model_group in interval_based.MODEL_GROUPS:
-        model_config = interval_based.get_model_config(model_name=model)
+        model_config = interval_based.INTERVAL_BASED_MODEL_CONFIGS[
+            model
+        ]  # TODO; Use .get here?
         interval_based.score_variants(
             model_config, input_vcf, input_fasta, input_gtf, output_tsv
         )
