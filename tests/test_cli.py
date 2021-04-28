@@ -11,7 +11,7 @@ def runner():
     yield runner
 
 
-def test_cli_correct_use_model(runner):
+def test_cli_correct_use_variant_centered(runner):
     test_dir = Path(__file__).resolve().parent
     result = runner.invoke(
         cli.score_variants,
@@ -27,6 +27,29 @@ def test_cli_correct_use_model(runner):
     )
     assert result.exit_code == 0
     Path(test_dir / "data" / "out.tsv").unlink()
+
+
+def test_cli_correct_use_interval_based(runner):
+    interval_based_test_dir = (
+        Path(__file__).resolve().parent / "data" / "interval-based"
+    )
+    vcf_file = str(interval_based_test_dir / "test.vcf")
+    fasta_file = str(interval_based_test_dir / "test.fa")
+    gtf_file = str(interval_based_test_dir / "test.gtf")
+    output_file = str(interval_based_test_dir / "out.tsv")
+    result = runner.invoke(
+        cli.score_variants,
+        [
+            vcf_file,
+            fasta_file,
+            "-g",
+            gtf_file,
+            output_file,
+            "-m",
+            "MMSplice/modularPredictions",
+        ],
+    )
+    assert result.exit_code == 0
 
 
 def test_cli_correct_use_multiple_scoring_function(runner):

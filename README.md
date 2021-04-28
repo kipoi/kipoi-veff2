@@ -10,11 +10,13 @@ We are providing a docker containers for development purposes as well. The use i
 # Build
 ```
 docker build --no-cache -t kipoi-veff2-docker -f Dockerfile .
+
 ```
 
 # Run 
 ```
 docker run -v $PWD:/app/ -it kipoi-veff2-docker
+
 ```
 
 This will return a bash shell with the conda environment already activated
@@ -33,7 +35,20 @@ pytest
 ```
 
 # Use
+
+## Variant centered
 ```
+python kipoi_veff2/cli.py in.vcf in.fasta out.tsv -m "DeepSEA/predict" -s "diff" -s "logit"
+```
+
+## Interval based
+
+```
+python kipoi_veff2/cli.py in.vcf in.fasta -g in.gtf out.tsv -m "MMSplice/mtsplice"
+
+```
+
+Read why scoring_functions=diff,logit is not favored by click [here](https://github.com/pallets/click/issues/484)
 python kipoi_veff2/cli.py in.vcf in.fasta out.tsv -m "DeepSEA/predict" -s "diff" -s "logit"
 ```
 Read why scoring_function=diff,logit is not favored by click [here](https://github.com/pallets/click/issues/484)

@@ -1,7 +1,8 @@
 import click
 import importlib
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
+from kipoi_veff2 import interval_based
 from kipoi_veff2 import scores
 from kipoi_veff2 import variant_centered
 
@@ -12,14 +13,19 @@ def validate_model(
     ctx: click.Context, param: click.Parameter, model: str
 ) -> str:
     """[This is a callback for validation of requested model w.r.t
-        variant_centered.MODEL_GROUPS]
+        variant_centered.MODEL_GROUPS and interval_based.MODEL_GROUPS]
     Raises:
         click.BadParameter: [An exception that formats
         out a standardized error message for a bad parameter
         if there are no model to score variants with]
     """
     model_group = model.split("/")[0]
-    if model_group not in variant_centered.MODEL_GROUPS:
+    if (
+        model_group in variant_centered.MODEL_GROUPS
+        or model_group in interval_based.MODEL_GROUPS
+    ):
+        return model
+    else:
         print(
             f"Removing {model_group} as it is not supported. \
             Please consult the documentation"
@@ -27,8 +33,6 @@ def validate_model(
         raise click.BadParameter(
             f"Please select atleast one supported model group."
         )
-    else:
-        return model
 
 
 def validate_scoring_function(
@@ -56,7 +60,9 @@ def validate_scoring_function(
                 {"name": scoring_function_name, "func": func}
             )
 
-    if not scoring_functions:
+    if (
+        list(scoring_function) and not scoring_functions
+    ):  # For variant centered models
         raise click.BadParameter(
             f"Please select atleast one available scoring function."
         )
@@ -70,6 +76,9 @@ def validate_scoring_function(
 @click.argument(
     "input_fasta", required=True, type=click.Path(exists=True, readable=True)
 )
+@click.option(
+    "-g", "--gtf", "input_gtf", type=click.Path(exists=True, readable=True)
+)
 @click.argument("output_tsv", required=True)
 @click.option(
     "-m",
@@ -78,34 +87,48 @@ def validate_scoring_function(
     type=str,
     callback=validate_model,
     help="Run variant effect prediction using this model. \
-        Example: python kipoi_veff2/cli.py in.vcf in.fa \
-                 out.tsv -m Basset -s diff",
+        Example (Variant centered): python kipoi_veff2/cli.py in.vcf in.fa \
+                 out.tsv -m Basset -s diff\
+        Example (Interval based): python kipoi_veff2/cli.py in.vcf in.fa\
+                -g in.gtf -m 'MMSplice/modularPredictions' out.tsv",
 )
 @click.option(
     "-s",
     "--scoring_function",
-    required=True,
+    required=False,
     multiple=True,
     type=str,
     callback=validate_scoring_function,
     help="Use this function to score \
-        Example: python kipoi_veff2/cli.py \
+        Example (variant centered only): python kipoi_veff2/cli.py \
                  in.vcf in.fa out.tsv -m Basset \
-                 -s diff -s logit",
+                 -s diff -s logit. \
+        For interval based models scoring functions are redundant as\
+        the model perform the scoring as part of prediction",
 )
 def score_variants(
     input_vcf: click.Path,
     input_fasta: click.Path,
+    input_gtf: Optional[click.Path],
     output_tsv: str,
     model: str,
     scoring_function: List[Dict[str, ScoringFunction]],
 ) -> None:
     """Perform variant effect prediction with the INPUT_VCF and INPUT_FASTA
     files using the MODELS and write them to OUTPUT_TSV"""
-    model_config = variant_centered.get_model_config(model_name=model)
-    variant_centered.score_variants(
-        model_config, input_vcf, input_fasta, output_tsv, scoring_function
-    )
+    model_group = model.split("/")[0]
+    if model_group in variant_centered.MODEL_GROUPS:
+        model_config = variant_centered.get_model_config(model_name=model)
+        variant_centered.score_variants(
+            model_config, input_vcf, input_fasta, output_tsv, scoring_function
+        )
+    elif model_group in interval_based.MODEL_GROUPS:
+        model_config = interval_based.INTERVAL_BASED_MODEL_CONFIGS[
+            model
+        ]  # TODO; Use .get here?
+        interval_based.score_variants(
+            model_config, input_vcf, input_fasta, input_gtf, output_tsv
+        )
 
 
 if __name__ == "__main__":

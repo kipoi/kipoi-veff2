@@ -32,9 +32,6 @@ class ModelConfig:
         else:
             return False
 
-    def get_model(self) -> str:
-        return self.model
-
     def get_transform(self) -> Any:
         if self.transform is None:
             if self.is_sequence_model():
@@ -68,9 +65,10 @@ class ModelConfig:
         targets = self.model_description.schema.targets
         column_labels = targets.column_labels
         target_shape = targets.shape[0]
+        variant_column_labels = ["#CHROM", "POS", "ID", "REF", "ALT"]
         if column_labels:
             if len(column_labels) == target_shape:
-                return [
+                return variant_column_labels + [
                     f"{self.model}/{c}/{scoring_function['name']}"
                     for scoring_function in scoring_functions
                     for c in column_labels
@@ -81,7 +79,7 @@ class ModelConfig:
                         length of column names does not match target shape"
                 )
         else:
-            return [
+            return variant_column_labels + [
                 f"{self.model}/{num+1}/{scoring_function['name']}"
                 for scoring_function in scoring_functions
                 for num in range(target_shape)
@@ -89,6 +87,9 @@ class ModelConfig:
 
 
 def get_model_config(model_name: str) -> ModelConfig:
+    # It is important to create a new dictionary for each
+    # model under a model group since required sequence length
+    # and transform can vary
     return ModelConfig(model=model_name)
 
 
@@ -126,9 +127,7 @@ def score_variants(
     )
     with open(output_file, "w") as output_tsv:
         tsv_writer = csv.writer(output_tsv, delimiter="\t")
-        tsv_writer.writerow(
-            ["#CHROM", "POS", "ID", "REF", "ALT"] + column_labels
-        )
+        tsv_writer.writerow(column_labels)
         for ref, alt, variant in dataloader(
             vcf_file, fasta_file, sequence_length
         ):
@@ -144,7 +143,8 @@ def score_variants(
             ]
             # TODO: Cleaner code
             scores = [
-                [score] if score.size == 1 else list(score) for score in scores
+                [score] if np.isscalar(score) else list(score)
+                for score in scores
             ]
             scores = list(itertools.chain.from_iterable(scores))
             tsv_writer.writerow(
