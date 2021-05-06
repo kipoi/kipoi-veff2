@@ -9,13 +9,13 @@ We are providing a docker containers for development purposes as well. The use i
 
 # Build
 ```
-docker build --no-cache -t kipoi-veff2-docker -f Dockerfile .
+docker build --no-cache -t kipoi-veff2-docker:latest -f Dockerfile .
 
 ```
 
 # Run 
 ```
-docker run -v $PWD:/app/ -it kipoi-veff2-docker
+docker run -v $PWD:/app/ -it kipoi-veff2-docker:latest
 
 ```
 
@@ -25,26 +25,39 @@ This will return a bash shell with the conda environment already activated
 
 ## Ubuntu:
 ```
-pytest
+pytest -s --disable-warnings
 ```
 
 ## Docker container: 
 ```
 cd /app
-pytest
+pytest  -s --disable-warnings
 ```
-
 # Use
 
+## Install the package
+
+```
+pip install .
+```
 ## Variant centered
 ```
-python kipoi_veff2/cli.py in.vcf in.fasta out.tsv -m "DeepSEA/predict" -s "diff" -s "logit"
+kipoi_veff2 kipoi-veff2/tests/data/general/singlevariant.vcf kipoi-veff2/tests/data/general/hg38_chr22.fa out_vc.tsv -m "DeepSEA/predict" -s "diff" -s "logit"
 ```
 
 ## Interval based
 
 ```
-python kipoi_veff2/cli.py in.vcf in.fasta -g in.gtf out.tsv -m "MMSplice/mtsplice"
+kipoi_veff2 kipoi-veff2/tests/data/interval-based/test.vcf kipoi-veff2/tests/data/interval-based/test.fa -g kipoi-veff2/tests/data/interval-based/test.gtf out_i.tsv -m "MMSplice/mtsplice"
+
+```
+
+# Run the full workflow
+
+```
+cd workflow
+snakemake -s Snakefile.vc -j3
+snakemake -s Snakefile.ib -j2
 
 ```
 
@@ -56,4 +69,3 @@ pip install pre-commit
 pre-commit install
 pre-commit run --all-files
 ```
-

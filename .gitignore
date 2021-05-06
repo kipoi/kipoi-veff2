@@ -130,5 +130,10 @@ dmypy.json
 
 .DS_Store
 
+*.tsv
 tests/data/*.tsv
+tests/data/general/*.tsv
 tests/data/interval-based/*.tsv
+
+.snakemake
+workflow/.snakemake

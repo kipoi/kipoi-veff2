@@ -1,0 +1,18 @@
+rule all:
+    input: 
+        expand("output.{model}.tsv", model=["Basset", "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF"])
+    output: "output.vc.merged.tsv"
+    script: "scripts/merge.py"
+
+rule run_vep_vc:
+    input: 
+        vcf = "../tests/data/general/singlevariant.vcf", 
+        fasta = "../tests/data/general/hg38_chr22.fa",
+    output: "output.{model}.tsv"
+    params:
+        scoring_functions=["-s diff", "-s logit"]
+    shell: 
+        "kipoi_veff2 {input.vcf} {input.fasta} {output} -m {wildcards.model} {params.scoring_functions}"
+
+
+
