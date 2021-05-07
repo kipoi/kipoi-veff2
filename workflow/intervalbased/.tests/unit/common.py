@@ -51,4 +51,4 @@ class OutputChecker:
     def compare_files(self, generated_file, expected_file):
         df_generated = pd.read_csv(generated_file, sep="\t")
         df_expected = pd.read_csv(expected_file, sep="\t")
-        pd._testing.assert_frame_equal(df_expected, df_generated)
+        assert sorted(df_expected.columns) == sorted(df_generated.columns)
