@@ -1,0 +1,15 @@
+rule all:
+    input: 
+        expand("output.{model}.tsv", model=["MMSplice/mtsplice", "MMSplice/deltaLogitPSI"])
+    output: "output.ib.merged.tsv"
+    script: "../scripts/merge.py"
+
+rule run_vep_ib:
+    input: 
+        vcf = "test.vcf", 
+        fasta = "test.fa", 
+    params:
+        gtf = "-g test.gtf",  
+    output: "output.{model}.tsv"
+    shell: 
+        "kipoi_veff2 {input.vcf} {input.fasta} {params.gtf} {output} -m {wildcards.model}"
