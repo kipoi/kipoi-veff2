@@ -34,7 +34,7 @@ setup(
         boilerplate you need to create a Python package.",
     entry_points={
         "console_scripts": [
-            "kipoi_veff2=kipoi_veff2.cli:main",
+            "kipoi_veff2=kipoi_veff2.cli:score_variants",
         ],
     },
     install_requires=requirements,
