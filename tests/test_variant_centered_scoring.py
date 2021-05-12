@@ -52,10 +52,15 @@ def test_variant_centered_scoring_single_scoring_function(
     test_model_config = variant_centered.get_model_config(model_name)
     assert test_model_config.model == model_name
     test_dir = Path(__file__).resolve().parent
-    vcf_file = str(test_dir / "data" / "singlevariant.vcf")
-    fasta_file = str(test_dir / "data" / "hg38_chr22.fa")
+    vcf_file = str(test_dir / "data" / "general" / "singlevariant.vcf")
+    fasta_file = str(test_dir / "data" / "general" / "hg38_chr22.fa")
     model_config = test_model_config
-    output_file = test_dir / "data" / f"out.{model_name.replace('/', '_')}.tsv"
+    output_file = (
+        test_dir
+        / "data"
+        / "general"
+        / f"out.{model_name.replace('/', '_')}.tsv"
+    )
 
     variant_centered.score_variants(
         model_config=model_config,
@@ -112,11 +117,14 @@ def test_variant_centered_scoring_multiple_scoring_functions(
     test_model_config = variant_centered.get_model_config(model_name)
     assert test_model_config.model == model_name
     test_dir = Path(__file__).resolve().parent
-    vcf_file = str(test_dir / "data" / "singlevariant.vcf")
-    fasta_file = str(test_dir / "data" / "hg38_chr22.fa")
+    vcf_file = str(test_dir / "data" / "general" / "singlevariant.vcf")
+    fasta_file = str(test_dir / "data" / "general" / "hg38_chr22.fa")
     model_config = test_model_config
     output_file = Path(
-        test_dir / "data" / f"out.{model_name.replace('/', '_')}.tsv"
+        test_dir
+        / "data"
+        / "general"
+        / f"out.{model_name.replace('/', '_')}.tsv"
     )
 
     variant_centered.score_variants(

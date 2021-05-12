@@ -35,6 +35,7 @@ setup(
     entry_points={
         "console_scripts": [
             "kipoi_veff2=kipoi_veff2.cli:score_variants",
+            "merge=kipoi_veff2.merge:merge",
         ],
     },
     install_requires=requirements,
