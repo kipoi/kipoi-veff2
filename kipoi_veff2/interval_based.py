@@ -181,7 +181,7 @@ def score_variants(
             if not np.isscalar(predictions) and not isinstance(
                 predictions, np.ndarray
             ):
-                raise IOError(
+                raise ValueError(
                     "Only predictions of type scalar or \
                         numpy.ndarray are supported"
                 )
