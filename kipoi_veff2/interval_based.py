@@ -177,6 +177,15 @@ def score_variants(
                     batch["inputs"]
                 )
             )
+
+            if not np.isscalar(predictions) and not isinstance(
+                predictions, np.ndarray
+            ):
+                raise ValueError(
+                    "Only predictions of type scalar or \
+                        numpy.ndarray are supported"
+                )
+
             if np.isscalar(predictions):
                 predictions = [predictions]
             for index, pred in enumerate(predictions):
