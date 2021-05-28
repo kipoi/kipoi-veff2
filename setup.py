@@ -4,17 +4,11 @@
 
 from setuptools import setup, find_packages
 
-requirements = [
-    "Click>=7.0",
-]
+requirements = []
 
-setup_requirements = [
-    "pytest-runner",
-]
+setup_requirements = []
 
-test_requirements = [
-    "pytest>=3",
-]
+test_requirements = []
 
 setup(
     author="Haimasree Bhattacharya",

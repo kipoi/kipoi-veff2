@@ -1,0 +1,55 @@
+{% set name = "mmsplice" %}
+{% set version = "2.2.0" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  git_url: "https://github.com/gagneurlab/MMSplice_MTSplice.git"
+
+build:
+  number: 0
+  entry_points:
+    - mmsplice = mmsplice.main:cli
+  script: "{{ PYTHON }} -m pip install . --no-deps  --ignore-installed -vv"
+
+requirements:
+  host:
+    - pip 
+    - python 3.6
+    - setuptools
+    - scikit-learn 0.19.*
+    - kipoiseq 
+    - numpy 1.18.*
+    - tensorflow
+    - keras
+    - pandas
+    - pybedtools
+    - pyfaidx
+    - tqdm
+    - click
+    - pyranges 0.0.71.*
+    - cyvcf2
+    - cython
+    - pytest-runner
+  run:
+    - python 3.6
+    - setuptools
+    - scikit-learn 0.19.*
+    - kipoiseq 
+    - numpy 1.18.*
+    - tensorflow
+    - keras
+    - pandas
+    - pybedtools
+    - pyfaidx
+    - tqdm
+    - click
+    - pyranges 0.0.71.*
+    - cyvcf2
+    - cython
+    - pytest-runner
+test:
+  imports:
+    - mmsplice
