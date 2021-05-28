@@ -70,7 +70,7 @@ pre-commit run --all-files
 
 ### Building the conda package 
 
-All dependencies are available via conda channels except mmsplice. So, we will first build a conda package for mmsplice followed by kipoi_veff2. The steps are as follows - 
+All dependencies are available via conda channels except mmsplice. So, we will first build a conda package for mmsplice followed by kipoi_veff2. The steps are as follows (only tested in macos) - 
 
 ```
 conda install conda-build
@@ -84,6 +84,7 @@ conda install -c pytorch  -c conda-forge -c bioconda  --use-local kipoi_veff2 py
 ```
 
 TODO: 
+- Test in Ubuntu
 - Add CI for building and testing package
 - Can/Should we get rid of python 3.6 requirement?
 - Possibility for a pypi release? 
