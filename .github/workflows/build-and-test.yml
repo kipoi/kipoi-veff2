@@ -7,10 +7,12 @@ jobs:
     strategy:
       fail-fast: true 
       matrix:
-        os: ["ubuntu"]
+        os: ["ubuntu", "macos"]
         include:
           - os: ubuntu
             environment-file: environment.ubuntu.yml
+          - os: macos
+            environment-file: environment.osx.yml
     runs-on: ${{ matrix.os }}-latest
     steps:
     - uses: actions/checkout@v2
@@ -44,4 +46,4 @@ jobs:
       run: pytest -k "not workflow" -s --disable-warnings tests
     - name: Run the full workflow on ${{ matrix.os }}
       shell: bash -l {0}
-      run: snakemake -j4 && pytest -k "workflow" -s --disable-warnings tests
+      run: snakemake -j4 && pytest -k "workflow" -s --disable-warnings test
