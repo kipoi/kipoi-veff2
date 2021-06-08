@@ -134,4 +134,7 @@ tests/data/*.tsv
 tests/data/interval-based/*.tsv
 
 .snakemake
+examples/.snakemake
+examples/*.tsv
+
 
