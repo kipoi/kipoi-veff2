@@ -44,4 +44,4 @@ jobs:
       run: pytest -k "not workflow" -s --disable-warnings tests
     - name: Run the full workflow on ${{ matrix.os }}
       shell: bash -l {0}
-      run: snakemake -j4 && pytest -k "workflow" -s --disable-warnings tests
+      run: cd examples && snakemake -j4 && cd ../ && pytest -k "workflow" -s --disable-warnings tests

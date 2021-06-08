@@ -3,7 +3,7 @@ def get_args(wildcards):
     for the corresponding model
     """
     if "MMSplice" in wildcards.model:
-        return "-g tests/data/interval-based/test.gtf"
+        return "-g input/test.gtf"
     else:
         return "-s diff -s logit"
 
@@ -11,12 +11,12 @@ models = ["Basset", "MMSplice/mtsplice"]
 
 rule all:
     input: 
-        "tests/output.merged.tsv"
+        "output.merged.tsv"
 
 rule run_vep:
     input: 
-        vcf = "tests/data/interval-based/test.vcf", 
-        fasta = "tests/data/interval-based/test.fa", 
+        vcf = "input/test.vcf", 
+        fasta = "input/test.fa", 
     output: 
         temp("output.{model}.tsv")
     params: 
@@ -28,7 +28,7 @@ rule run_vep:
 rule merge:
     input: 
         expand("output.{model}.tsv", model=models)
-    output: "tests/output.merged.tsv"
+    output: "output.merged.tsv"
     shell: 
         "kipoi_veff2_merge {input} {output}"
 
