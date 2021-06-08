@@ -21,7 +21,7 @@ rule run_vep:
     params: 
         model_args = get_args
     shell: 
-        "kipoi_veff2 {input.vcf} {input.fasta} {params.model_args} {output} -m {wildcards.model}"
+        "kipoi_veff2_predict {input.vcf} {input.fasta} {params.model_args} {output} -m {wildcards.model}"
 
 
 rule merge:
@@ -29,5 +29,5 @@ rule merge:
         expand("output.{model}.tsv", model=["Basset", "MMSplice/mtsplice"])
     output: "tests/output.merged.tsv"
     shell: 
-        "merge {input} {output}"
+        "kipoi_veff2_merge {input} {output}"
 
