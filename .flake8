@@ -1,6 +1,5 @@
 [flake8]
 ignore = W503
-exclude = workflow/variantcentered/.tests/unit/*.py,  workflow/intervalbased/.tests/unit/*.py
 max-line-length = 79
 max-complexity = 18
 select = B,C,E,F,W,T4,B9
