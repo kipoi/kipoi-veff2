@@ -1,0 +1,34 @@
+def get_args(wildcards):
+    """Function returning appropriate parameters with the flag
+    for the corresponding model
+    """
+    if "MMSplice" in wildcards.model:
+        return "-g input/test.gtf"
+    else:
+        return "-s diff -s logit"
+
+models = ["Basset", "MMSplice/mtsplice"]
+
+rule all:
+    input: 
+        "output.merged.tsv"
+
+rule run_vep:
+    input: 
+        vcf = "input/test.vcf", 
+        fasta = "input/test.fa", 
+    output: 
+        temp("output.{model}.tsv")
+    params: 
+        model_args = get_args
+    shell: 
+        "kipoi_veff2_predict {input.vcf} {input.fasta} {params.model_args} {output} -m {wildcards.model}"
+
+
+rule merge:
+    input: 
+        expand("output.{model}.tsv", model=models)
+    output: "output.merged.tsv"
+    shell: 
+        "kipoi_veff2_merge {input} {output}"
+

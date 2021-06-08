@@ -15,16 +15,16 @@ RUN apt-get -qq update && apt-get -qq -y install curl bzip2 \
     && conda clean --all --yes
 
 ENV PATH /usr/local/condabin:$PATH
-
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
 
 RUN mkdir -p /app
 
-ADD environment.yml /app/environment.yml
+ADD environment.ubuntu.yml /app/environment.ubuntu.yml
 
-RUN conda env create -f /app/environment.yml
+RUN conda env create -f /app/environment.ubuntu.yml
 
 RUN echo "source activate kipoi-veff2" > ~/.bashrc
 ENV PATH /usr/local/envs/kipoi-veff2/bin:$PATH
 
 SHELL ["conda", "run", "-n", "kipoi-veff2", "/bin/bash", "-c"]
-

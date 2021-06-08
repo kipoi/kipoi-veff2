@@ -8,8 +8,8 @@ from kipoi_veff2 import interval_based
 
 def test_variant_cenetered_dataloader():
     test_dir = Path(__file__).resolve().parent
-    vcf_file = str(test_dir / "data" / "singlevariant.vcf")
-    fasta_file = str(test_dir / "data" / "hg38_chr22.fa")
+    vcf_file = str(test_dir / "data" / "general" / "singlevariant.vcf")
+    fasta_file = str(test_dir / "data" / "general" / "hg38_chr22.fa")
     sequence_length = 10
 
     for ref, alt, variant in variant_centered.dataloader(
