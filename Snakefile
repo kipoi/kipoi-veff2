@@ -7,6 +7,7 @@ def get_args(wildcards):
     else:
         return "-s diff -s logit"
 
+models = ["Basset", "MMSplice/mtsplice"]
 
 rule all:
     input: 
@@ -26,7 +27,7 @@ rule run_vep:
 
 rule merge:
     input: 
-        expand("output.{model}.tsv", model=["Basset", "MMSplice/mtsplice"])
+        expand("output.{model}.tsv", model=models)
     output: "tests/output.merged.tsv"
     shell: 
         "kipoi_veff2_merge {input} {output}"
