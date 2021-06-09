@@ -56,7 +56,12 @@ def test_interval_based_modelconfig():
     ],
 )
 def test_interval_based_scoring(
-    model_name, header_name, variant_exon_id, number_of_headers, number_of_rows
+    model_name,
+    header_name,
+    variant_exon_id,
+    number_of_headers,
+    number_of_rows,
+    tmp_path,
 ):
     interval_based_test_dir = (
         Path(__file__).resolve().parent / "data" / "interval-based"
@@ -64,9 +69,7 @@ def test_interval_based_scoring(
     vcf_file = str(interval_based_test_dir / "test.vcf")
     fasta_file = str(interval_based_test_dir / "test.fa")
     gtf_file = str(interval_based_test_dir / "test.gtf")
-    output_file = (
-        interval_based_test_dir / f"out.{model_name.replace('/', '_')}.tsv"
-    )
+    output_file = tmp_path / f"out.{model_name.replace('/', '_')}.tsv"
 
     model_config = interval_based.INTERVAL_BASED_MODEL_CONFIGS[model_name]
     interval_based.score_variants(
@@ -88,4 +91,3 @@ def test_interval_based_scoring(
         row = next(tsv_reader)
         assert row[2] == variant_exon_id
         assert len(row) == number_of_headers
-    output_file.unlink()
