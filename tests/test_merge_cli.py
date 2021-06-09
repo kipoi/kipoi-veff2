@@ -13,9 +13,9 @@ def runner():
     yield runner
 
 
-def test_cli_correct_use_merge(runner):
+def test_cli_correct_use_merge(runner, tmp_path):
     test_dir = Path(__file__).resolve().parent / "data" / "general"
-    merged_file_path = test_dir / "merged.tsv"
+    merged_file_path = tmp_path / "merged.tsv"
     result = runner.invoke(
         merge.merge,
         [
@@ -38,7 +38,6 @@ def test_cli_correct_use_merge(runner):
         df_expected.columns.values.tolist()
         == df_generated.columns.values.tolist()
     )  # TODO: Should I add sorted here?
-    merged_file_path.unlink()
 
 
 def test_cli_no_input(runner):
@@ -71,10 +70,10 @@ def test_cli_invalid_input(runner):
     assert "Path 'randominput.tsv' does not exist" in result.output
 
 
-def test_cli_single_input(runner):
+def test_cli_single_input(runner, tmp_path):
     test_dir = Path(__file__).resolve().parent / "data" / "general"
     input_file_path = test_dir / "out.Basset.tsv"
-    output_file_path = test_dir / "randomoutput.tsv"
+    output_file_path = tmp_path / "randomoutput.tsv"
     result = runner.invoke(
         merge.merge,
         [
@@ -92,4 +91,3 @@ def test_cli_single_input(runner):
         df_expected.columns.values.tolist()
         == df_generated.columns.values.tolist()
     )  # TODO: Should I add sorted here?
-    output_file_path.unlink()

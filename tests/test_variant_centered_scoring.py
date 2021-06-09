@@ -47,7 +47,7 @@ def test_variant_centered_modelconfig():
     ],
 )
 def test_variant_centered_scoring_single_scoring_function(
-    model_name, header_name, number_of_headers
+    model_name, header_name, number_of_headers, tmp_path
 ):
     test_model_config = variant_centered.get_model_config(model_name)
     assert test_model_config.model == model_name
@@ -55,12 +55,7 @@ def test_variant_centered_scoring_single_scoring_function(
     vcf_file = str(test_dir / "data" / "general" / "singlevariant.vcf")
     fasta_file = str(test_dir / "data" / "general" / "hg38_chr22.fa")
     model_config = test_model_config
-    output_file = (
-        test_dir
-        / "data"
-        / "general"
-        / f"out.{model_name.replace('/', '_')}.tsv"
-    )
+    output_file = tmp_path / f"out.{model_name.replace('/', '_')}.tsv"
 
     variant_centered.score_variants(
         model_config=model_config,
@@ -78,7 +73,6 @@ def test_variant_centered_scoring_single_scoring_function(
         row = next(tsv_reader)
         assert row[2] == ""
         assert len(row) == number_of_headers
-    output_file.unlink()
 
 
 @pytest.mark.parametrize(
@@ -112,7 +106,11 @@ def test_variant_centered_scoring_single_scoring_function(
     ],
 )
 def test_variant_centered_scoring_multiple_scoring_functions(
-    model_name, diff_header_name, logit_header_name, number_of_headers
+    model_name,
+    diff_header_name,
+    logit_header_name,
+    number_of_headers,
+    tmp_path,
 ):
     test_model_config = variant_centered.get_model_config(model_name)
     assert test_model_config.model == model_name
@@ -120,12 +118,7 @@ def test_variant_centered_scoring_multiple_scoring_functions(
     vcf_file = str(test_dir / "data" / "general" / "singlevariant.vcf")
     fasta_file = str(test_dir / "data" / "general" / "hg38_chr22.fa")
     model_config = test_model_config
-    output_file = Path(
-        test_dir
-        / "data"
-        / "general"
-        / f"out.{model_name.replace('/', '_')}.tsv"
-    )
+    output_file = tmp_path / f"out.{model_name.replace('/', '_')}.tsv"
 
     variant_centered.score_variants(
         model_config=model_config,
@@ -147,4 +140,3 @@ def test_variant_centered_scoring_multiple_scoring_functions(
         row = next(tsv_reader)
         assert row[2] == ""
         assert len(row) == number_of_headers
-    output_file.unlink()
