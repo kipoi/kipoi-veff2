@@ -3,50 +3,50 @@ name: kipoi-veff2
 on: [push]
 
 jobs:
-  build-and-test-package:
-    strategy:
-      fail-fast: true 
-      matrix:
-        os: ["ubuntu", "macos"]
-        include:
-          - os: ubuntu
-            environment-file: environment.ubuntu.yml
-          - os: macos
-            environment-file: environment.osx.yml
-    runs-on: ${{ matrix.os }}-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Run formatter
-      uses: psf/black@stable
-      if: matrix.os == 'ubuntu'
-    - name: Set up Python 3.6
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.6
-    - name: Run linter
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Install dependencies on ${{ matrix.os }}
-      uses: conda-incubator/setup-miniconda@v2
-      with:
-        activate-environment: kipoi-veff2
-        environment-file: ${{ matrix.environment-file }}
-        python-version: 3.6
-        auto-activate-base: false
-    - name: Install kipoi-veff2
-      shell: bash -l {0}
-      run: python -m pip uninstall -y enum34 && python -m pip install . #TODO: How is enum34 getting installed to begin with?
-    - name: Run CI tests on ${{ matrix.os }}
-      shell: bash -l {0}
-      run: pytest -k "not workflow" -s --disable-warnings tests
-    - name: Run the full workflow on ${{ matrix.os }}
-      shell: bash -l {0}
-      run: cd examples && snakemake -j4 && cd ../ && pytest -k "workflow" -s --disable-warnings tests
+  # build-and-test-package:
+  #   strategy:
+  #     fail-fast: true 
+  #     matrix:
+  #       os: ["ubuntu", "macos"]
+  #       include:
+  #         - os: ubuntu
+  #           environment-file: environment.ubuntu.yml
+  #         - os: macos
+  #           environment-file: environment.osx.yml
+  #   runs-on: ${{ matrix.os }}-latest
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Run formatter
+  #     uses: psf/black@stable
+  #     if: matrix.os == 'ubuntu'
+  #   - name: Set up Python 3.6
+  #     uses: actions/setup-python@v2
+  #     with:
+  #       python-version: 3.6
+  #   - name: Run linter
+  #     run: |
+  #       python -m pip install --upgrade pip
+  #       pip install flake8 pytest
+  #       # stop the build if there are Python syntax errors or undefined names
+  #       flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+  #       # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+  #       flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+  #   - name: Install dependencies on ${{ matrix.os }}
+  #     uses: conda-incubator/setup-miniconda@v2
+  #     with:
+  #       activate-environment: kipoi-veff2
+  #       environment-file: ${{ matrix.environment-file }}
+  #       python-version: 3.6
+  #       auto-activate-base: false
+  #   - name: Install kipoi-veff2
+  #     shell: bash -l {0}
+  #     run: python -m pip uninstall -y enum34 && python -m pip install . #TODO: How is enum34 getting installed to begin with?
+  #   - name: Run CI tests on ${{ matrix.os }}
+  #     shell: bash -l {0}
+  #     run: pytest -k "not workflow" -s --disable-warnings tests
+  #   - name: Run the full workflow on ${{ matrix.os }}
+  #     shell: bash -l {0}
+  #     run: cd examples && snakemake -j4 && cd ../ && pytest -k "workflow" -s --disable-warnings tests
 
   build-and-test-package-with-minimal-env:
     strategy:
