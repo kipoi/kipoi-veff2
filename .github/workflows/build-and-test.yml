@@ -53,6 +53,11 @@ jobs:
       fail-fast: false 
       matrix:
         os: ["ubuntu", "macos"]
+        include:
+          - os: ubuntu
+            environment-file: environment.minimal.linux.yml
+          - os: macos
+            environment-file: environment.minimal.osx.yml
     runs-on: ${{ matrix.os }}-latest
     steps:
     - uses: actions/checkout@v2
@@ -75,7 +80,7 @@ jobs:
       uses: conda-incubator/setup-miniconda@v2
       with:
         activate-environment: kipoi-veff2
-        environment-file: environment.minimal.yml
+        environment-file: ${{ matrix.environment-file }}
         python-version: 3.6
         auto-activate-base: false
     - name: Install kipoi-veff2
