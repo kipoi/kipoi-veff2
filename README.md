@@ -60,8 +60,9 @@ python -m pip uninstall -y enum34 && python -m pip install . (Note: I am not sur
 A more abridged version of the above environments is avaiable in environment.minimal.yml. 
 This has been tested on CentOS Linux with conda 4.7.10. This environment intentionally does
 not contain snakemake in order to keep it minimal. Please be sure to install snakemake before
-using the Snakefile inside examples. The only difference is the verison of cyvcf2 which is most
-likely due to the older version of conda. 
+using the Snakefile inside examples. 
+
+Note: For older version of conda (4.7.10), pinning cyvcf2 to 0.11 seems to work in CentOS Linux
 
 We are also providing a docker containers for development purposes as well. The use is follows
 
