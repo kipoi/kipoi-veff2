@@ -17,18 +17,18 @@ This is an Ensembl Variant Effect Predictor (VEP) like tool with a subset of kip
 
 We currently support following model/ model groups.
 
-| Model/ Model group          | Type             |
-|-----------------------------|------------------|
-| Basset                      | Variant centered |
-| DeepSEA/predict             | Variant centered |
-| DeepSEA/beluga              | Variant centered |
-| DeepSEA/varianteffect       | Variant centered |
-| DeepBind                    | Variant centered |
-| MMSplice/mtsplice           | Interval based   |
-| MMSplice/deltaLogitPSI      | Interval based   |
-| MMSplice/modularPredictions | Interval based   |
-| MMSplice/pathogenecity      | Interval based   |
-| MMSplice/splicingEfficiency | Interval based   |
+| Model/ Model group           | Type             |
+|------------------------------|------------------|
+| Basset                       | Variant centered |
+| DeepSEA/predict              | Variant centered |
+| DeepSEA/beluga               | Variant centered |
+| DeepSEA/variantEffects       | Variant centered |
+| DeepBind                     | Variant centered |
+| MMSplice/mtsplice            | Interval based   |
+| MMSplice/deltaLogitPSI       | Interval based   |
+| MMSplice/modularPredictions  | Interval based   |
+| MMSplice/pathogenicity       | Interval based   |
+| MMSplice/splicingEfficiency  | Interval based   |
 
 
 # Install the conda environment 
@@ -54,6 +54,14 @@ conda env create -f environment.osx.yml
 conda activate kipoi-veff2
 python -m pip uninstall -y enum34 && python -m pip install . (Note: I am not sure yet why or how enum34 get installed)
 ```
+
+## General purpose environment
+
+A more abridged version of the above environments is avaiable in environment.minimal.yml. 
+This has been tested on CentOS Linux with conda 4.7.10. This environment intentionally does
+not contain snakemake in order to keep it minimal. Please be sure to install snakemake before
+using the Snakefile inside examples. The only difference is the verison of cyvcf2 which is most
+likely due to the older version of conda. 
 
 We are also providing a docker containers for development purposes as well. The use is follows
 
