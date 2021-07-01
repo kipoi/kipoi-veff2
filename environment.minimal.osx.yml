@@ -13,7 +13,6 @@ dependencies:
   - torchvision=0.4.2
   - setuptools=52.0.0
   - pip=20.2.4
-  - gcc
   - pip:
     - h5py==2.10.0
     - keras==2.2.4
