@@ -50,7 +50,7 @@ jobs:
 
   build-and-test-package-with-minimal-env:
     strategy:
-      fail-fast: true 
+      fail-fast: false 
       matrix:
         os: ["ubuntu", "macos"]
     runs-on: ${{ matrix.os }}-latest
