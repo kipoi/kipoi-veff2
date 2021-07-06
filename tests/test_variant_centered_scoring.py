@@ -44,6 +44,16 @@ def test_variant_centered_modelconfig():
             "DeepSEA/variantEffects/Osteoblasts_H3K9me3_None/diff",
             924,
         ),
+        (
+            "MPRA-DragoNN/ConvModel",
+            "MPRA-DragoNN/ConvModel/12/diff",
+            17,
+        ),
+        (
+            "MPRA-DragoNN/DeepFactorizedModel",
+            "MPRA-DragoNN/DeepFactorizedModel/12/diff",
+            17,
+        ),
     ],
 )
 def test_variant_centered_scoring_single_scoring_function(
