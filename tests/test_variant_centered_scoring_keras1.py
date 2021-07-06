@@ -59,7 +59,12 @@ def test_variant_centered_scoring_single_scoring_function(
 @pytest.mark.parametrize(
     "model_name, diff_header_name, logit_header_name, number_of_headers",
     [
-        ("Divergent421", "Divergent421/ENCSR000EID/diff", "Divergent421/ENCSR979BPU/logit", 847),
+        (
+            "Divergent421",
+            "Divergent421/ENCSR000EID/diff",
+            "Divergent421/ENCSR979BPU/logit",
+            847,
+        ),
         (
             "CpGenie/U_87_MG_ENCSR000DDQ",
             "CpGenie/U_87_MG_ENCSR000DDQ/methylation_prob/diff",
