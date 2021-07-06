@@ -43,7 +43,7 @@ jobs:
       run: python -m pip uninstall -y enum34 && python -m pip install . #TODO: How is enum34 getting installed to begin with?
     - name: Run CI tests on ${{ matrix.os }}
       shell: bash -l {0}
-      run: pytest -k "not workflow or not keras" -s --disable-warnings tests
+      run: pytest -k "not keras1 and not workflow" -s --disable-warnings tests
     - name: Run the full workflow on ${{ matrix.os }}
       shell: bash -l {0}
       run: cd examples && snakemake -j4 && cd ../ && pytest -k "workflow" -s --disable-warnings tests
@@ -86,7 +86,7 @@ jobs:
       run: python -m pip uninstall -y enum34 && python -m pip install . #TODO: How is enum34 getting installed to begin with?
     - name: Run CI tests on ${{ matrix.os }}
       shell: bash -l {0}
-      run: pytest -k "not workflow or not keras" -s --disable-warnings tests
+      run: pytest -k "not keras1 and not workflow" -s --disable-warnings tests
 
 
   build-and-test-package-with-minimal-env-keras1:

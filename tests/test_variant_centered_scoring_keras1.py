@@ -7,7 +7,7 @@ from kipoi_veff2 import scores
 import pytest
 
 
-def test_variant_centered_modelconfig():
+def test_variant_centered_modelconfig_keras1():
     test_model_config = variant_centered.get_model_config("Divergent421")
     assert test_model_config.model == "Divergent421"
     assert test_model_config.get_required_sequence_length() == 1000
@@ -27,7 +27,7 @@ def test_variant_centered_modelconfig():
         ),
     ],
 )
-def test_variant_centered_scoring_single_scoring_function(
+def test_variant_centered_scoring_single_scoring_function_keras1(
     model_name, header_name, number_of_headers, tmp_path
 ):
     test_model_config = variant_centered.get_model_config(model_name)
@@ -73,7 +73,7 @@ def test_variant_centered_scoring_single_scoring_function(
         ),
     ],
 )
-def test_variant_centered_scoring_multiple_scoring_functions(
+def test_variant_centered_scoring_multiple_scoring_functions_keras1(
     model_name,
     diff_header_name,
     logit_header_name,
