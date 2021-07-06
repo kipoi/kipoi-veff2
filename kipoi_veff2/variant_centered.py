@@ -11,7 +11,7 @@ from kipoiseq.dataclasses import Interval, Variant
 from kipoiseq.extractors import VariantSeqExtractor
 from kipoiseq.transforms import ReorderedOneHot
 
-MODEL_GROUPS = ["Basset", "DeepBind", "DeepSEA"]
+MODEL_GROUPS = ["Basset", "DeepBind", "DeepSEA", "CpGenie", "Divergent421"]
 
 ScoringFunction = Callable[[Any, Any], List]
 
@@ -71,7 +71,7 @@ class ModelConfig:
                 return variant_column_labels + [
                     f"{self.model}/{c}/{scoring_function['name']}"
                     for scoring_function in scoring_functions
-                    for c in column_labels
+                    for c in sorted(column_labels)
                 ]
             else:
                 raise IOError(
