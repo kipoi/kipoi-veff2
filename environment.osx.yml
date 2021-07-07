@@ -267,10 +267,6 @@ dependencies:
     - keras==2.2.4
     - keras-applications==1.0.8
     - keras-preprocessing==1.1.2
-    - kipoi==0.6.31
-    - kipoi-conda==0.2.2
-    - kipoi-utils==0.3.8
-    - kipoiseq==0.5.2
     - markdown==3.3.4
     - mmsplice==2.2.0
     - natsort==7.1.1
@@ -303,4 +299,8 @@ dependencies:
     - text-unidecode==1.3
     - tinydb==4.4.0
     - werkzeug==1.0.1
+    - kipoi
+    - kipoi-conda
+    - kipoi-utils
+    - kipoiseq
 prefix: /Users/b260/anaconda3/envs/kipoi-veff2
