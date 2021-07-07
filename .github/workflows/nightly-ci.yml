@@ -1,8 +1,6 @@
 name: kipoi-veff2 nightly CI
 
 on:
-    push:
-        branches: ['**']
     schedule:
     # At the end of everyday
     - cron: "0 0 * * *"
