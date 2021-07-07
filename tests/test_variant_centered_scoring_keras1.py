@@ -17,18 +17,14 @@ def test_variant_centered_modelconfig_keras1():
 
 
 @pytest.mark.parametrize(
-    "model_name, header_name, number_of_headers",
+    "model_name, number_of_headers",
     [
-        ("Divergent421", "Divergent421/ENCSR979BPU/diff", 426),
-        (
-            "CpGenie/U_87_MG_ENCSR000DDQ",
-            "CpGenie/U_87_MG_ENCSR000DDQ/unmethylation_prob/diff",
-            7,
-        ),
+        ("Divergent421", 426),
+        ("CpGenie/U_87_MG_ENCSR000DDQ", 7),
     ],
 )
 def test_variant_centered_scoring_single_scoring_function_keras1(
-    model_name, header_name, number_of_headers, tmp_path
+    model_name, number_of_headers, tmp_path
 ):
     test_model_config = variant_centered.get_model_config(model_name)
     assert test_model_config.model == model_name
@@ -50,33 +46,21 @@ def test_variant_centered_scoring_single_scoring_function_keras1(
         tsv_reader = csv.reader(output_file_handle, delimiter="\t")
         header = next(tsv_reader)
         assert len(header) == number_of_headers
-        assert header[number_of_headers - 1] == header_name
+        assert header[number_of_headers - 1].split("/")[-1] == "diff"
         row = next(tsv_reader)
         assert row[2] == ""
         assert len(row) == number_of_headers
 
 
 @pytest.mark.parametrize(
-    "model_name, diff_header_name, logit_header_name, number_of_headers",
+    "model_name, number_of_headers",
     [
-        (
-            "Divergent421",
-            "Divergent421/ENCSR000EID/diff",
-            "Divergent421/ENCSR979BPU/logit",
-            847,
-        ),
-        (
-            "CpGenie/U_87_MG_ENCSR000DDQ",
-            "CpGenie/U_87_MG_ENCSR000DDQ/methylation_prob/diff",
-            "CpGenie/U_87_MG_ENCSR000DDQ/unmethylation_prob/logit",
-            9,
-        ),
+        ("Divergent421", 847),
+        ("CpGenie/U_87_MG_ENCSR000DDQ", 9),
     ],
 )
 def test_variant_centered_scoring_multiple_scoring_functions_keras1(
     model_name,
-    diff_header_name,
-    logit_header_name,
     number_of_headers,
     tmp_path,
 ):
@@ -103,8 +87,8 @@ def test_variant_centered_scoring_multiple_scoring_functions_keras1(
         tsv_reader = csv.reader(output_file_handle, delimiter="\t")
         header = next(tsv_reader)
         assert len(header) == number_of_headers
-        assert header[5] == diff_header_name
-        assert header[number_of_headers - 1] == logit_header_name
+        assert header[5].split("/")[-1] == "diff"
+        assert header[number_of_headers - 1].split("/")[-1] == "logit"
         row = next(tsv_reader)
         assert row[2] == ""
         assert len(row) == number_of_headers

@@ -23,7 +23,7 @@ def test_variant_centered_modelconfig():
 @pytest.mark.parametrize(
     "model_name, header_name, number_of_headers",
     [
-        ("Basset", "Basset/pHTE/diff", 169),
+        ("Basset", "Basset/PANC/diff", 169),
         (
             "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF",
             "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF/1/diff",
@@ -31,17 +31,17 @@ def test_variant_centered_modelconfig():
         ),
         (
             "DeepSEA/beluga",
-            "DeepSEA/beluga/pHTE_DNase_None/diff",
+            "DeepSEA/beluga/Osteoblasts_H4K20me1_None/diff",
             2007,
         ),
         (
             "DeepSEA/predict",
-            "DeepSEA/predict/pHTE_DNase_None/diff",
+            "DeepSEA/predict/Osteoblasts_H3K9me3_None/diff",
             924,
         ),
         (
             "DeepSEA/variantEffects",
-            "DeepSEA/variantEffects/pHTE_DNase_None/diff",
+            "DeepSEA/variantEffects/Osteoblasts_H3K9me3_None/diff",
             924,
         ),
     ],
@@ -78,7 +78,7 @@ def test_variant_centered_scoring_single_scoring_function(
 @pytest.mark.parametrize(
     "model_name, diff_header_name, logit_header_name, number_of_headers",
     [
-        ("Basset", "Basset/8988T/diff", "Basset/pHTE/logit", 333),
+        ("Basset", "Basset/8988T/diff", "Basset/PANC/logit", 333),
         (
             "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF",
             "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF/1/diff",
@@ -87,20 +87,20 @@ def test_variant_centered_scoring_single_scoring_function(
         ),
         (
             "DeepSEA/beluga",
-            "DeepSEA/beluga/4star_H3K27me3_None/diff",
-            "DeepSEA/beluga/pHTE_DNase_None/logit",
+            "DeepSEA/beluga/8988T_DNase_None/diff",
+            "DeepSEA/beluga/Osteoblasts_H4K20me1_None/logit",
             4009,
         ),
         (
             "DeepSEA/predict",
             "DeepSEA/predict/8988T_DNase_None/diff",
-            "DeepSEA/predict/pHTE_DNase_None/logit",
+            "DeepSEA/predict/Osteoblasts_H3K9me3_None/logit",
             1843,
         ),
         (
             "DeepSEA/variantEffects",
             "DeepSEA/variantEffects/8988T_DNase_None/diff",
-            "DeepSEA/variantEffects/pHTE_DNase_None/logit",
+            "DeepSEA/variantEffects/Osteoblasts_H3K9me3_None/logit",
             1843,
         ),
     ],

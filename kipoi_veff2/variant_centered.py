@@ -71,7 +71,7 @@ class ModelConfig:
                 return variant_column_labels + [
                     f"{self.model}/{c}/{scoring_function['name']}"
                     for scoring_function in scoring_functions
-                    for c in sorted(column_labels)
+                    for c in column_labels
                 ]
             else:
                 raise IOError(
