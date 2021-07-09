@@ -1,5 +1,5 @@
 [flake8]
-ignore = W503
+ignore = W503, E203
 exclude = setup.py
 max-line-length = 79
 max-complexity = 18

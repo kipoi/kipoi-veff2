@@ -1,4 +1,5 @@
 import click
+from math import ceil
 from typing import List
 
 from kipoi import list_models
@@ -36,6 +37,15 @@ def validate_model_groups(
         return available_model_groups
 
 
+def validate_number_of_shards(
+    ctx: click.Context, param: click.Parameter, number_of_shards: int
+) -> int:
+    if number_of_shards <= 0:
+        raise click.BadParameter("Please enter a positive number of shards.")
+    else:
+        return number_of_shards
+
+
 @click.command()
 @click.option(
     "-mg",
@@ -47,7 +57,19 @@ def validate_model_groups(
     help="Enter your model group of choice \
     Example: kipoi_veff2_generate_workflow -mg Basset -mg DeepSEA",
 )
-def generate_snakefiles(model_groups: str) -> None:
+@click.option(
+    "-n",
+    "--number-of-shards",
+    required=True,
+    type=int,
+    callback=validate_number_of_shards,
+    help="Enter the number of groups to divide all the models in \
+    Example: kipoi_veff2_generate_workflow -mg Basset -mg DeepSEA \
+    -mg DeepBind/Homo_sapiens -n 10",
+)
+def generate_snakefiles(
+    model_groups: List[str], number_of_shards: int
+) -> None:
     click.echo(f"working model groups are = {model_groups}")
     all_models = list_models().model
     list_of_models_veff = []
@@ -55,7 +77,18 @@ def generate_snakefiles(model_groups: str) -> None:
         list_of_models_veff.extend(
             list(all_models[all_models.str.contains(mg)])
         )
-    click.echo(len(list_of_models_veff))
+    number_of_models_veff = len(list_of_models_veff)
+    if number_of_shards > number_of_models_veff:
+        raise click.BadParameter(
+            f"Please adjust the number of shards. The number of models are \
+            {number_of_models_veff} and number of shards is {number_of_shards}"
+        )
+    chunk_size = ceil(number_of_models_veff / number_of_shards)
+    list_of_shards = [
+        list_of_models_veff[i : i + chunk_size]
+        for i in range(0, number_of_models_veff, chunk_size)
+    ]
+    click.echo(len(list_of_shards[0]))
 
 
 if __name__ == "__main__":
