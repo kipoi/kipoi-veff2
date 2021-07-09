@@ -1,5 +1,6 @@
 [flake8]
 ignore = W503
+exclude = setup.py
 max-line-length = 79
 max-complexity = 18
 select = B,C,E,F,W,T4,B9
