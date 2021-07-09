@@ -47,6 +47,12 @@ def validate_number_of_shards(
 
 
 @click.command()
+@click.argument(
+    "input_vcf", required=True, type=click.Path(exists=True, readable=True)
+)
+@click.argument(
+    "input_fasta", required=True, type=click.Path(exists=True, readable=True)
+)
 @click.option(
     "-mg",
     "--model-groups",
@@ -67,8 +73,15 @@ def validate_number_of_shards(
     Example: kipoi_veff2_generate_workflow -mg Basset -mg DeepSEA \
     -mg DeepBind/Homo_sapiens -n 10",
 )
+@click.argument(
+    "output_dir", required=True, type=click.Path(exists=True, writable=True)
+)
 def generate_snakefiles(
-    model_groups: List[str], number_of_shards: int
+    input_vcf: click.Path,
+    input_fasta: click.Path,
+    model_groups: List[str],
+    number_of_shards: int,
+    output_dir: click.Path,
 ) -> None:
     click.echo(f"working model groups are = {model_groups}")
     all_models = list_models().model
@@ -88,7 +101,30 @@ def generate_snakefiles(
         list_of_models_veff[i : i + chunk_size]
         for i in range(0, number_of_models_veff, chunk_size)
     ]
-    click.echo(len(list_of_shards[0]))
+    for shard_id, shard in enumerate(list_of_shards):
+        snakefile_content = f'''def get_args(wildcards):
+    """Function returning appropriate parameters with the flag
+    for the corresponding model
+    """
+    return "-s diff"
+
+models = {shard}
+
+rule all:
+    input: 
+        expand("{output_dir}/{{model}}.tsv", model=models)
+
+rule run_vep:
+    output:
+        "{output_dir}/{{model}}.tsv"
+    params: 
+        model_args = get_args
+    shell: 
+        "kipoi_veff2_predict {input_vcf} {input_fasta} {{params.model_args}} {{output}} -m {{wildcards.model}}" 
+        '''
+
+        with open(f"{output_dir}/Snakefile.{shard_id}", "w") as out:
+            out.write(snakefile_content)
 
 
 if __name__ == "__main__":
