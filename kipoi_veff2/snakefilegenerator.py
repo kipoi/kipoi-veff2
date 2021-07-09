@@ -1,9 +1,9 @@
 import click
+from typing import List
 
+from kipoi import list_models
 from kipoi_veff2 import interval_based
 from kipoi_veff2 import variant_centered
-
-from typing import List
 
 
 def validate_model_groups(
@@ -49,6 +49,13 @@ def validate_model_groups(
 )
 def generate_snakefiles(model_groups: str) -> None:
     click.echo(f"working model groups are = {model_groups}")
+    all_models = list_models().model
+    list_of_models_veff = []
+    for mg in model_groups:
+        list_of_models_veff.extend(
+            list(all_models[all_models.str.contains(mg)])
+        )
+    click.echo(len(list_of_models_veff))
 
 
 if __name__ == "__main__":
