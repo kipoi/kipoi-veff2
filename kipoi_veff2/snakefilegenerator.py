@@ -89,6 +89,7 @@ def generate_snakefiles(
         list_of_models_veff.extend(
             list(all_models[all_models.str.contains(mg)])
         )
+    list_of_models_veff = sorted(list_of_models_veff)
     number_of_models_veff = len(list_of_models_veff)
     if number_of_shards > number_of_models_veff:
         raise click.BadParameter(

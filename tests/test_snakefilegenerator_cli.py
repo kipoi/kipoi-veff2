@@ -35,14 +35,14 @@ def test_cli_correct_use(runner, tmp_path):
     with open(output_dir / "Snakefile.0", "r") as snakefile_handle:
         lines = snakefile_handle.readlines()
 
-    assert (
-        lines[6] == "models = ['DeepSEA/variantEffects', 'DeepSEA/beluga']\n"
-    )
+    assert lines[6] == "models = ['Basset', 'DeepSEA/beluga']\n"
 
     with open(output_dir / "Snakefile.1", "r") as snakefile_handle:
         lines = snakefile_handle.readlines()
 
-    assert lines[6] == "models = ['DeepSEA/predict', 'Basset']\n"
+    assert (
+        lines[6] == "models = ['DeepSEA/predict', 'DeepSEA/variantEffects']\n"
+    )
 
 
 def test_cli_correct_use_different_flag(runner, tmp_path):
@@ -69,14 +69,14 @@ def test_cli_correct_use_different_flag(runner, tmp_path):
     with open(output_dir / "Snakefile.0", "r") as snakefile_handle:
         lines = snakefile_handle.readlines()
 
-    assert (
-        lines[6] == "models = ['DeepSEA/variantEffects', 'DeepSEA/beluga']\n"
-    )
+    assert lines[6] == "models = ['Basset', 'DeepSEA/beluga']\n"
 
     with open(output_dir / "Snakefile.1", "r") as snakefile_handle:
         lines = snakefile_handle.readlines()
 
-    assert lines[6] == "models = ['DeepSEA/predict', 'Basset']\n"
+    assert (
+        lines[6] == "models = ['DeepSEA/predict', 'DeepSEA/variantEffects']\n"
+    )
 
 
 def test_cli_input_vcf_does_not_exist(runner):
