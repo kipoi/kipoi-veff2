@@ -92,8 +92,8 @@ def generate_snakefiles(
     number_of_models_veff = len(list_of_models_veff)
     if number_of_shards > number_of_models_veff:
         raise click.BadParameter(
-            f"Please adjust the number of shards. The number of models are \
-            {number_of_models_veff} and number of shards is {number_of_shards}"
+            f"Number of shards must be <= the number of models. The number of \
+            models are {number_of_models_veff} and number of shards is {number_of_shards}"
         )
     chunk_size = ceil(number_of_models_veff / number_of_shards)
     list_of_shards = [

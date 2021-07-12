@@ -145,3 +145,47 @@ def test_cli_wrong_model(runner, tmp_path):
     )
     assert result.exit_code == 2
     assert "Not adding Deepsea as it is not supported yet" in result.output
+
+
+def test_cli_invalid_n(runner, tmp_path):
+    test_dir = Path(__file__).resolve().parent
+    output_dir = tmp_path / "workflow"
+    output_dir.mkdir()
+    result = runner.invoke(
+        snakefilegenerator.generate_snakefiles,
+        [
+            str(test_dir / "data" / "general" / "test.vcf"),
+            str(test_dir / "data" / "general" / "hg38_chr22.fa"),
+            str(output_dir),
+            "-mg",
+            "DeepSEA",
+            "-mg",
+            "Basset",
+            "-n",
+            "0",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Please enter a positive number of shards" in result.output
+
+
+def test_cli_shard_greater_than_models(runner, tmp_path):
+    test_dir = Path(__file__).resolve().parent
+    output_dir = tmp_path / "workflow"
+    output_dir.mkdir()
+    result = runner.invoke(
+        snakefilegenerator.generate_snakefiles,
+        [
+            str(test_dir / "data" / "general" / "test.vcf"),
+            str(test_dir / "data" / "general" / "hg38_chr22.fa"),
+            str(output_dir),
+            "-mg",
+            "DeepSEA",
+            "-mg",
+            "Basset",
+            "-n",
+            "5",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "Number of shards must be <= the number of models" in result.output
