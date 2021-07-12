@@ -32,3 +32,14 @@ def test_cli_correct_use(runner, tmp_path):
     assert result.exit_code == 0
     assert (output_dir / "Snakefile.0").exists()
     assert (output_dir / "Snakefile.1").exists()
+    with open(output_dir / "Snakefile.0", "r") as snakefile_handle:
+        lines = snakefile_handle.readlines()
+
+    assert (
+        lines[6] == "models = ['DeepSEA/variantEffects', 'DeepSEA/beluga']\n"
+    )
+
+    with open(output_dir / "Snakefile.1", "r") as snakefile_handle:
+        lines = snakefile_handle.readlines()
+
+    assert lines[6] == "models = ['DeepSEA/predict', 'Basset']\n"
