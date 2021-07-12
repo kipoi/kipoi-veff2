@@ -53,6 +53,9 @@ def validate_number_of_shards(
 @click.argument(
     "input_fasta", required=True, type=click.Path(exists=True, readable=True)
 )
+@click.argument(
+    "output_dir", required=True, type=click.Path(exists=True, writable=True)
+)
 @click.option(
     "-mg",
     "--model-groups",
@@ -73,17 +76,13 @@ def validate_number_of_shards(
     Example: kipoi_veff2_generate_workflow -mg Basset -mg DeepSEA \
     -mg DeepBind/Homo_sapiens -n 10",
 )
-@click.argument(
-    "output_dir", required=True, type=click.Path(exists=True, writable=True)
-)
 def generate_snakefiles(
     input_vcf: click.Path,
     input_fasta: click.Path,
+    output_dir: click.Path,
     model_groups: List[str],
     number_of_shards: int,
-    output_dir: click.Path,
 ) -> None:
-    click.echo(f"working model groups are = {model_groups}")
     all_models = list_models().model
     list_of_models_veff = []
     for mg in model_groups:
