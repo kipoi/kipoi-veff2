@@ -1,13 +1,25 @@
-def get_args(wildcards):
+def get_args(params):
     """Function returning appropriate parameters with the flag
     for the corresponding model
     """
-    if "MMSplice" in wildcards.model:
+    if "MMSplice" in params.model:
         return "-g input/test.gtf"
     else:
         return "-s diff -s logit"
 
-models = ["Basset", "MMSplice/mtsplice"]
+modelsorgroups = ["Basset", "MMSplice/mtsplice"]
+
+def get_list_of_models():
+    """Function returning list of models
+    that belongs to a list of model groups"""
+    from kipoi import list_models
+    all_models = list_models().model
+    models = []
+    for mg in modelsorgroups:
+        models.extend(list(all_models[all_models.str.contains(mg)]))
+    models = sorted(models)
+    return models
+
 
 rule all:
     input: 
@@ -24,11 +36,11 @@ rule run_vep:
     shell: 
         "kipoi_veff2_predict {input.vcf} {input.fasta} {params.model_args} {output} -m {wildcards.model}"
 
-
 rule merge:
-    input: 
-        expand("output.{model}.tsv", model=models)
-    output: "output.merged.tsv"
-    shell: 
+    input:
+        expand("output.{model}.tsv", model=get_list_of_models())
+    output:
+        "output.merged.tsv"
+    shell:
         "kipoi_veff2_merge {input} {output}"
-
+ 

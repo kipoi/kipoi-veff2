@@ -101,11 +101,16 @@ kipoi_veff2_predict kipoi-veff2/tests/data/interval-based/test.vcf kipoi-veff2/t
 
 # Run the full workflow
 
-We use snakemake for running a full workflow. Snakemake is installed in the conda environment provided by the environment files.
+We use snakemake for running a full workflow. Snakemake is installed in the conda environment provided by the environment file environment.ubuntu.yml and environment.macos.yml
 ```
 cd examples && snakemake -j4
 ```
 The output will be available in examples/output.merged.tsv 
+
+For model groups which has a large number of models (Example: DeepBind), it is recommended to use the above workflow. The list of 
+models are generated from the variable modelsorgroups. Updated modelsorgroups variable in examples/Snakefile according to your need. 
+This variable can accept a model name (MMSplice/mtsplice), a model group (DeepSEA) or a sub model group (DeepBind/Homo_sapiens/RBP)
+provided they are available in kipoi. Please note - names are case sensitive
 
 # TODO: Add instruction for working with big vcf files 
 
