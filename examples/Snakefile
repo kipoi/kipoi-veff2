@@ -7,7 +7,9 @@ def get_args(params):
     else:
         return "-s diff -s logit"
 
-def get_list_of_models(modelgroups):
+modelgroups = ["Basset", "MMSplice/mtsplice"]
+
+def get_list_of_models():
     """Function returning list of models
     that belongs to a list of model groups"""
     from kipoi import list_models
@@ -18,7 +20,6 @@ def get_list_of_models(modelgroups):
     models = sorted(models)
     return models
 
-modelgroups = ["Basset", "MMSplice/mtsplice"]
 
 rule all:
     input: 
@@ -37,7 +38,7 @@ rule run_vep:
 
 rule merge:
     input:
-        expand("output.{model}.tsv", model=get_list_of_models(modelgroups))
+        expand("output.{model}.tsv", model=get_list_of_models())
     output:
         "output.merged.tsv"
     shell:
