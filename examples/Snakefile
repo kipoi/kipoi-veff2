@@ -7,7 +7,7 @@ def get_args(params):
     else:
         return "-s diff -s logit"
 
-modelgroups = ["Basset", "MMSplice/mtsplice"]
+modelsorgroups = ["Basset", "MMSplice/mtsplice"]
 
 def get_list_of_models():
     """Function returning list of models
@@ -15,7 +15,7 @@ def get_list_of_models():
     from kipoi import list_models
     all_models = list_models().model
     models = []
-    for mg in modelgroups:
+    for mg in modelsorgroups:
         models.extend(list(all_models[all_models.str.contains(mg)]))
     models = sorted(models)
     return models

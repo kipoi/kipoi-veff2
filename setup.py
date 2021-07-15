@@ -30,7 +30,6 @@ setup(
         "console_scripts": [
             "kipoi_veff2_predict=kipoi_veff2.cli:score_variants",
             "kipoi_veff2_merge=kipoi_veff2.merge:merge",
-            "kipoi_veff2_generate_workflow=kipoi_veff2.snakefilegenerator:generate_snakefiles",
         ],
     },
     install_requires=requirements,
