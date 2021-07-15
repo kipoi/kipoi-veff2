@@ -31,7 +31,7 @@ def validate_model(
             Please consult the documentation"
         )
         raise click.BadParameter(
-            f"Please select atleast one supported model group."
+            "Please select atleast one supported model group."
         )
 
 
@@ -64,7 +64,7 @@ def validate_scoring_function(
         list(scoring_function) and not scoring_functions
     ):  # For variant centered models
         raise click.BadParameter(
-            f"Please select atleast one available scoring function."
+            "Please select atleast one available scoring function."
         )
     return scoring_functions
 

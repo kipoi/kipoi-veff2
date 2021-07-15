@@ -11,13 +11,7 @@ from kipoiseq.dataclasses import Interval, Variant
 from kipoiseq.extractors import VariantSeqExtractor
 from kipoiseq.transforms import ReorderedOneHot
 
-MODEL_GROUPS = [
-    "Basset",
-    "DeepBind",
-    "DeepSEA",
-    "MPRA-DragoNN",
-    "pwm_HOCOMOCO",
-]
+MODEL_GROUPS = ["Basset", "DeepBind", "DeepSEA", "MPRA-DragoNN"]
 
 ScoringFunction = Callable[[Any, Any], List]
 
@@ -92,15 +86,11 @@ class ModelConfig:
             ]
 
 
-def get_model_config(
-    model_name: str, sequence_length: int = None
-) -> ModelConfig:
+def get_model_config(model_name: str) -> ModelConfig:
     # It is important to create a new dictionary for each
     # model under a model group since required sequence length
     # and transform can vary
-    return ModelConfig(
-        model=model_name, required_sequence_length=sequence_length
-    )
+    return ModelConfig(model=model_name)
 
 
 def dataloader(
