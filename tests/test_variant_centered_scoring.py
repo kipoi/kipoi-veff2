@@ -20,9 +20,6 @@ def test_variant_centered_modelconfig():
     assert test_model_config.get_transform().alphabet == ["A", "C", "G", "T"]
 
 
-# TODO: Clean up the following tests by making sequence length optional
-
-
 @pytest.mark.parametrize(
     "model_name, header_name, number_of_headers",
     [
@@ -39,7 +36,6 @@ def test_variant_centered_modelconfig():
         ),
         (
             "DeepSEA/predict",
-            None,
             "DeepSEA/predict/Osteoblasts_H3K9me3_None/diff",
             924,
         ),
@@ -90,8 +86,7 @@ def test_variant_centered_scoring_single_scoring_function(
 
 
 @pytest.mark.parametrize(
-    "model_name, diff_header_name, logit_header_name, \
-        number_of_headers",
+    "model_name, diff_header_name, logit_header_name, number_of_headers",
     [
         ("Basset", "Basset/8988T/diff", "Basset/PANC/logit", 333),
         (
