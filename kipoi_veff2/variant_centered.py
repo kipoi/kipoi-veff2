@@ -11,7 +11,13 @@ from kipoiseq.dataclasses import Interval, Variant
 from kipoiseq.extractors import VariantSeqExtractor
 from kipoiseq.transforms import ReorderedOneHot
 
-MODEL_GROUPS = ["Basset", "DeepBind", "DeepSEA", "MPRA-DragoNN"]
+MODEL_GROUPS = [
+    "Basset",
+    "DeepBind",
+    "DeepSEA",
+    "MPRA-DragoNN",
+    "pwm_HOCOMOCO",
+]
 
 ScoringFunction = Callable[[Any, Any], List]
 

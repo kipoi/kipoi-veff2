@@ -54,6 +54,11 @@ def test_variant_centered_modelconfig():
             "MPRA-DragoNN/DeepFactorizedModel/12/diff",
             17,
         ),
+        (
+            "pwm_HOCOMOCO/human/AHR",
+            "pwm_HOCOMOCO/human/AHR/1/diff",
+            6,
+        ),
     ],
 )
 def test_variant_centered_scoring_single_scoring_function(
