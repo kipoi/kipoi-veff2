@@ -20,59 +20,62 @@ def test_variant_centered_modelconfig():
     assert test_model_config.get_transform().alphabet == ["A", "C", "G", "T"]
 
 
-# TODO: Clean up the following tests by making sequence length optional
-
-
 @pytest.mark.parametrize(
-    "model_name, sequence_length, header_name, number_of_headers",
+    "model_name, header_name, number_of_headers",
     [
-        ("Basset", None, "Basset/PANC/diff", 169),
+        ("Basset", "Basset/PANC/diff", 169),
         (
             "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF",
-            None,
             "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF/1/diff",
             6,
         ),
         (
             "DeepSEA/beluga",
-            None,
             "DeepSEA/beluga/Osteoblasts_H4K20me1_None/diff",
             2007,
         ),
         (
             "DeepSEA/predict",
-            None,
             "DeepSEA/predict/Osteoblasts_H3K9me3_None/diff",
             924,
         ),
         (
             "DeepSEA/variantEffects",
-            None,
             "DeepSEA/variantEffects/Osteoblasts_H3K9me3_None/diff",
             924,
         ),
         (
             "MPRA-DragoNN/ConvModel",
-            None,
             "MPRA-DragoNN/ConvModel/12/diff",
             17,
         ),
         (
             "MPRA-DragoNN/DeepFactorizedModel",
-            None,
             "MPRA-DragoNN/DeepFactorizedModel/12/diff",
             17,
         ),
-        ("pwm_HOCOMOCO/human/AHR", 150, "pwm_HOCOMOCO/human/AHR/1/diff", 6),
+        (
+            "pwm_HOCOMOCO/human/AHR",
+            "pwm_HOCOMOCO/human/AHR/1/diff",
+            6,
+        ),
     ],
 )
 def test_variant_centered_scoring_single_scoring_function(
-    model_name, sequence_length, header_name, number_of_headers, tmp_path
+    model_name, header_name, number_of_headers, tmp_path
 ):
+    model_group = model_name.split("/")[0]
+    model_group_config_dict = (
+        variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS.get(
+            model_group, {}
+        )
+    )
     test_model_config = variant_centered.get_model_config(
-        model_name, sequence_length
+        model_name, **model_group_config_dict
     )
     assert test_model_config.model == model_name
+    for attr_name, attr_val in model_group_config_dict.items():
+        assert getattr(test_model_config, attr_name) == attr_val
     test_dir = Path(__file__).resolve().parent
     vcf_file = str(test_dir / "data" / "general" / "singlevariant.vcf")
     fasta_file = str(test_dir / "data" / "general" / "hg38_chr22.fa")
@@ -98,55 +101,47 @@ def test_variant_centered_scoring_single_scoring_function(
 
 
 @pytest.mark.parametrize(
-    "model_name, sequence_length, diff_header_name, logit_header_name, \
-        number_of_headers",
+    "model_name, diff_header_name, logit_header_name, number_of_headers",
     [
-        ("Basset", None, "Basset/8988T/diff", "Basset/PANC/logit", 333),
+        ("Basset", "Basset/8988T/diff", "Basset/PANC/logit", 333),
         (
             "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF",
-            None,
             "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF/1/diff",
             "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF/1/logit",
             7,
         ),
         (
             "DeepSEA/beluga",
-            None,
             "DeepSEA/beluga/8988T_DNase_None/diff",
             "DeepSEA/beluga/Osteoblasts_H4K20me1_None/logit",
             4009,
         ),
         (
             "DeepSEA/predict",
-            None,
             "DeepSEA/predict/8988T_DNase_None/diff",
             "DeepSEA/predict/Osteoblasts_H3K9me3_None/logit",
             1843,
         ),
         (
             "DeepSEA/variantEffects",
-            None,
             "DeepSEA/variantEffects/8988T_DNase_None/diff",
             "DeepSEA/variantEffects/Osteoblasts_H3K9me3_None/logit",
             1843,
         ),
         (
             "MPRA-DragoNN/ConvModel",
-            None,
             "MPRA-DragoNN/ConvModel/1/diff",
             "MPRA-DragoNN/ConvModel/12/logit",
             29,
         ),
         (
             "MPRA-DragoNN/DeepFactorizedModel",
-            None,
             "MPRA-DragoNN/DeepFactorizedModel/1/diff",
             "MPRA-DragoNN/DeepFactorizedModel/12/logit",
             29,
         ),
         (
             "pwm_HOCOMOCO/human/AHR",
-            150,
             "pwm_HOCOMOCO/human/AHR/1/diff",
             "pwm_HOCOMOCO/human/AHR/1/logit",
             7,
@@ -155,16 +150,23 @@ def test_variant_centered_scoring_single_scoring_function(
 )
 def test_variant_centered_scoring_multiple_scoring_functions(
     model_name,
-    sequence_length,
     diff_header_name,
     logit_header_name,
     number_of_headers,
     tmp_path,
 ):
+    model_group = model_name.split("/")[0]
+    model_group_config_dict = (
+        variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS.get(
+            model_group, {}
+        )
+    )
     test_model_config = variant_centered.get_model_config(
-        model_name, sequence_length
+        model_name, **model_group_config_dict
     )
     assert test_model_config.model == model_name
+    for attr_name, attr_val in model_group_config_dict.items():
+        assert getattr(test_model_config, attr_name) == attr_val
     test_dir = Path(__file__).resolve().parent
     vcf_file = str(test_dir / "data" / "general" / "singlevariant.vcf")
     fasta_file = str(test_dir / "data" / "general" / "hg38_chr22.fa")

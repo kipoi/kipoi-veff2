@@ -202,3 +202,39 @@ def test_cli_wrong_model(runner, tmp_path):
     assert result.exit_code == 2
     assert "Removing Dummy as it is not supported" in result.output
     assert "Please select atleast one supported model group" in result.output
+
+
+def test_cli_sequence_length(runner, tmp_path):
+    test_dir = Path(__file__).resolve().parent
+    result = runner.invoke(
+        cli.score_variants,
+        [
+            str(test_dir / "data" / "general" / "test.vcf"),
+            str(test_dir / "data" / "general" / "hg38_chr22.fa"),
+            str(tmp_path / "out.tsv"),
+            "-l",
+            150,
+            "-m",
+            "pwm_HOCOMOCO/human/AHR",
+            "-s",
+            "diff",
+        ],
+    )
+    assert result.exit_code == 0
+
+
+def test_cli_no_seq_length(runner, tmp_path):
+    test_dir = Path(__file__).resolve().parent
+    result = runner.invoke(
+        cli.score_variants,
+        [
+            str(test_dir / "data" / "general" / "test.vcf"),
+            str(test_dir / "data" / "general" / "hg38_chr22.fa"),
+            str(tmp_path / "out.tsv"),
+            "-m",
+            "pwm_HOCOMOCO/human/AHR",
+            "-s",
+            "diff",
+        ],
+    )
+    assert result.exit_code == 0

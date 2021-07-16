@@ -31,7 +31,7 @@ def validate_model(
             Please consult the documentation"
         )
         raise click.BadParameter(
-            f"Please select atleast one supported model group."
+            "Please select atleast one supported model group."
         )
 
 
@@ -64,7 +64,7 @@ def validate_scoring_function(
         list(scoring_function) and not scoring_functions
     ):  # For variant centered models
         raise click.BadParameter(
-            f"Please select atleast one available scoring function."
+            "Please select atleast one available scoring function."
         )
     return scoring_functions
 
@@ -79,6 +79,9 @@ def validate_scoring_function(
 @click.option(
     "-g", "--gtf", "input_gtf", type=click.Path(exists=True, readable=True)
 )
+@click.option(
+    "-l", "--seq-length", "sequence_length", default=None, type=int
+)  # TODO: A validation function for checking if it is a positive int?
 @click.argument("output_tsv", required=True)
 @click.option(
     "-m",
@@ -110,6 +113,7 @@ def score_variants(
     input_vcf: click.Path,
     input_fasta: click.Path,
     input_gtf: Optional[click.Path],
+    sequence_length: Optional[int],
     output_tsv: str,
     model: str,
     scoring_function: List[Dict[str, ScoringFunction]],
@@ -118,7 +122,26 @@ def score_variants(
     files using the MODELS and write them to OUTPUT_TSV"""
     model_group = model.split("/")[0]
     if model_group in variant_centered.MODEL_GROUPS:
-        model_config = variant_centered.get_model_config(model_name=model)
+        model_group_config_dict = (
+            variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS.get(
+                model_group, {}
+            )
+        )
+        if sequence_length is not None:
+            # None is to match the value we use to in
+            # get_required_sequence_length
+            model_group_config_dict[
+                "required_sequence_length"
+            ] = sequence_length
+        model_config = variant_centered.get_model_config(
+            model_name=model, **model_group_config_dict
+        )
+        if sequence_length is not None:
+            assert (
+                getattr(model_config, "required_sequence_length")
+                == sequence_length
+            )  # TODO: write a meaningful test
+        click.echo(model_config)
         variant_centered.score_variants(
             model_config, input_vcf, input_fasta, output_tsv, scoring_function
         )
