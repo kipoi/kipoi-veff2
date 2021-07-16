@@ -11,13 +11,13 @@ from kipoiseq.dataclasses import Interval, Variant
 from kipoiseq.extractors import VariantSeqExtractor
 from kipoiseq.transforms import ReorderedOneHot
 
-MODEL_GROUPS = [
+MODEL_GROUPS = {
     "Basset",
     "DeepBind",
     "DeepSEA",
     "MPRA-DragoNN",
     "pwm_HOCOMOCO",
-]
+}
 
 ScoringFunction = Callable[[Any, Any], List]
 
@@ -92,11 +92,16 @@ class ModelConfig:
             ]
 
 
-def get_model_config(model_name: str) -> ModelConfig:
+def get_model_config(model_name: str, **kwargs) -> ModelConfig:
     # It is important to create a new dictionary for each
     # model under a model group since required sequence length
     # and transform can vary
-    return ModelConfig(model=model_name)
+    return ModelConfig(model=model_name, **kwargs)
+
+
+VARIANT_CENTERED_MODEL_GROUP_CONFIGS = {
+    "pwm_HOCOMOCO": {"required_sequence_length": 100}
+}
 
 
 def dataloader(

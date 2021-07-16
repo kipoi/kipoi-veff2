@@ -64,7 +64,15 @@ def test_variant_centered_modelconfig():
 def test_variant_centered_scoring_single_scoring_function(
     model_name, header_name, number_of_headers, tmp_path
 ):
-    test_model_config = variant_centered.get_model_config(model_name)
+    model_group = model_name.split("/")[0]
+    model_group_config_dict = (
+        variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS.get(
+            model_group, {}
+        )
+    )
+    test_model_config = variant_centered.get_model_config(
+        model_name, **model_group_config_dict
+    )
     assert test_model_config.model == model_name
     test_dir = Path(__file__).resolve().parent
     vcf_file = str(test_dir / "data" / "general" / "singlevariant.vcf")
