@@ -74,6 +74,8 @@ def test_variant_centered_scoring_single_scoring_function(
         model_name, **model_group_config_dict
     )
     assert test_model_config.model == model_name
+    for attr_name, attr_val in model_group_config_dict.items():
+        assert getattr(test_model_config, attr_name) == attr_val
     test_dir = Path(__file__).resolve().parent
     vcf_file = str(test_dir / "data" / "general" / "singlevariant.vcf")
     fasta_file = str(test_dir / "data" / "general" / "hg38_chr22.fa")
@@ -163,6 +165,8 @@ def test_variant_centered_scoring_multiple_scoring_functions(
         model_name, **model_group_config_dict
     )
     assert test_model_config.model == model_name
+    for attr_name, attr_val in model_group_config_dict.items():
+        assert getattr(test_model_config, attr_name) == attr_val
     test_dir = Path(__file__).resolve().parent
     vcf_file = str(test_dir / "data" / "general" / "singlevariant.vcf")
     fasta_file = str(test_dir / "data" / "general" / "hg38_chr22.fa")
