@@ -72,7 +72,7 @@ class ModelConfig:
     ) -> List:
         targets = self.model_description.schema.targets
         column_labels = targets.column_labels
-        target_shape = targets.shape[0]
+        target_shape = targets.shape[-1]  # TODO: Verify with Ziga
         variant_column_labels = ["#CHROM", "POS", "ID", "REF", "ALT"]
         if column_labels:
             if len(column_labels) == target_shape:
@@ -145,29 +145,59 @@ def score_variants(
         for ref, alt, variant in dataloader(
             vcf_file, fasta_file, sequence_length
         ):
-            ref_prediction = kipoi_model.predict_on_batch(
-                transform(ref)[np.newaxis]
-            )[0]
-            alt_prediction = kipoi_model.predict_on_batch(
-                transform(alt)[np.newaxis]
-            )[0]
-            scores = [
-                scoring_function["func"](ref_prediction, alt_prediction)
-                for scoring_function in scoring_functions
-            ]
-            # TODO: Cleaner code
-            scores = [
-                [score] if np.isscalar(score) else list(score)
-                for score in scores
-            ]
-            scores = list(itertools.chain.from_iterable(scores))
-            tsv_writer.writerow(
-                [
-                    variant.chrom,
-                    variant.pos,
-                    variant.id,
-                    variant.ref,
-                    variant.alt,
+            if model_config.batch_size == 1:
+                ref_prediction = kipoi_model.predict_on_batch(
+                    transform(ref)[np.newaxis]
+                )[0]
+                alt_prediction = kipoi_model.predict_on_batch(
+                    transform(alt)[np.newaxis]
+                )[0]
+                scores = [
+                    scoring_function["func"](ref_prediction, alt_prediction)
+                    for scoring_function in scoring_functions
                 ]
-                + scores
-            )
+                # TODO: Cleaner code
+                scores = [
+                    [score] if np.isscalar(score) else list(score)
+                    for score in scores
+                ]
+                scores = list(itertools.chain.from_iterable(scores))
+                tsv_writer.writerow(
+                    [
+                        variant.chrom,
+                        variant.pos,
+                        variant.id,
+                        variant.ref,
+                        variant.alt,
+                    ]
+                    + scores
+                )
+            elif model_config.batch_size == 2:  # Special case for basenji
+                ref_batch = transform(ref)[np.newaxis]
+                alt_batch = transform(alt)[np.newaxis]
+                ref_alt_batch = np.concatenate((ref_batch, alt_batch), axis=0)
+                ref_alt_prediction = kipoi_model.predict_on_batch(
+                    ref_alt_batch
+                )
+                ref_prediction, alt_prediction = (
+                    ref_alt_prediction[0],
+                    ref_alt_prediction[1],
+                )
+                scores = (alt_prediction - ref_prediction).mean(axis=0)
+                scores = [
+                    [score] if np.isscalar(score) else list(score)
+                    for score in scores
+                ]
+                scores = list(itertools.chain.from_iterable(scores))
+                tsv_writer.writerow(
+                    [
+                        variant.chrom,
+                        variant.pos,
+                        variant.id,
+                        variant.ref,
+                        variant.alt,
+                    ]
+                    + scores
+                )
+            else:
+                raise IOError("Only batch size of 1 or 2 is supported")
