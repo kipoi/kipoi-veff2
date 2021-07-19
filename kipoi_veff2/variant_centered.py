@@ -17,6 +17,7 @@ MODEL_GROUPS = {
     "DeepSEA",
     "MPRA-DragoNN",
     "pwm_HOCOMOCO",
+    "Basenji",
 }
 
 ScoringFunction = Callable[[Any, Any], List]
@@ -27,6 +28,7 @@ class ModelConfig:
     model: str
     required_sequence_length: int = None
     transform: Any = None
+    batch_size: int = 1
 
     def __post_init__(self):
         self.model_description = kipoi.get_model_descr(self.model)
@@ -100,7 +102,8 @@ def get_model_config(model_name: str, **kwargs) -> ModelConfig:
 
 
 VARIANT_CENTERED_MODEL_GROUP_CONFIGS = {
-    "pwm_HOCOMOCO": {"required_sequence_length": 100}
+    "pwm_HOCOMOCO": {"required_sequence_length": 100},
+    "Basenji": {"batch_size": 2},
 }
 
 

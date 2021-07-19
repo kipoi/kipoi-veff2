@@ -7,9 +7,30 @@ from kipoi_veff2 import scores
 import pytest
 
 
+def test_variant_centered_modelconfig_batchsize():
+    test_model_config_dict = (
+        variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS.get(
+            "Basenji", {}
+        )
+    )
+    test_model_config = variant_centered.get_model_config(
+        "Basenji", **test_model_config_dict
+    )
+    assert test_model_config.model == "Basenji"
+    assert test_model_config.batch_size == 2
+
+
 def test_variant_centered_modelconfig():
-    test_model_config = variant_centered.get_model_config("DeepSEA/predict")
+    test_model_config_dict = (
+        variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS.get(
+            "DeepSEA/predict", {}
+        )
+    )
+    test_model_config = variant_centered.get_model_config(
+        "DeepSEA/predict", **test_model_config_dict
+    )
     assert test_model_config.model == "DeepSEA/predict"
+    assert test_model_config.batch_size == 1
     assert test_model_config.get_required_sequence_length() == 1000
     assert (
         type(test_model_config.get_transform()).__name__ == "ReorderedOneHot"

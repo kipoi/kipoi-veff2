@@ -128,7 +128,7 @@ def score_variants(
             )
         )
         if sequence_length is not None:
-            # None is to match the value we use to in
+            # None is to match the value we use in
             # get_required_sequence_length
             model_group_config_dict[
                 "required_sequence_length"
