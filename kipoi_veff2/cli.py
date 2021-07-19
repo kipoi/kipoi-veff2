@@ -39,11 +39,8 @@ def validate_scoring_function(
     ctx: click.Context, param: click.Parameter, scoring_function: tuple
 ) -> List[Dict[str, ScoringFunction]]:
     """[This is a callback for validation of scoring functions w.r.t
-        scores.AVAILABLE_SCORING_FUNCTIONS]
-    Raises:
-        click.BadParameter: [An exception that formats
-        out a standardized error message for a bad parameter
-        if there are no scoring function]"""
+    scores.AVAILABLE_SCORING_FUNCTIONS]
+    """
     scoring_functions = []
     for scoring_function_name in list(scoring_function):
         if scoring_function_name not in scores.AVAILABLE_SCORING_FUNCTIONS:
@@ -60,6 +57,13 @@ def validate_scoring_function(
                 {"name": scoring_function_name, "func": func}
             )
 
+    if (
+        list(scoring_function) and not scoring_functions
+    ):  # For variant centered models
+        click.echo(
+            "Requested scoring function is unavailable. \
+                Falling back to the default scoring function scores.diff"
+        )
     return scoring_functions
 
 

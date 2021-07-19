@@ -34,6 +34,8 @@ class ModelConfig:
     default_scoring_function: Dict = field(
         default_factory=lambda: {"name": "diff", "func": scores.diff}
     )
+    # This must be defined this way because dataclasses dont allow mutable
+    # data type at initialization
     # Should we allow multiple default scoring functions?
 
     def __post_init__(self):

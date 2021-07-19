@@ -101,9 +101,10 @@ def test_cli_invalid_scoring_function(runner, tmp_path):
             "undefined",
         ],
     )
-    assert result.exit_code == 2
+    assert result.exit_code == 0
     assert (
-        "Please select atleast one available scoring function" in result.output
+        "Falling back to the default scoring function scores.diff"
+        in result.output
     )
 
 
