@@ -109,7 +109,6 @@ def test_variant_centered_scoring_single_scoring_function(
         vcf_file=vcf_file,
         fasta_file=fasta_file,
         output_file=output_file,
-        scoring_functions=[{"name": "diff", "func": scores.diff}],
     )
     assert output_file.exists()
     with open(output_file, "r") as output_file_handle:

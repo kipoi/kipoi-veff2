@@ -1,5 +1,5 @@
 import csv
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import itertools
 from pathlib import Path
 from typing import Any, Dict, List, Iterator, Callable, Union
@@ -10,6 +10,8 @@ import kipoi
 from kipoiseq.dataclasses import Interval, Variant
 from kipoiseq.extractors import VariantSeqExtractor
 from kipoiseq.transforms import ReorderedOneHot
+
+from kipoi_veff2 import scores
 
 MODEL_GROUPS = {
     "Basset",
@@ -29,6 +31,10 @@ class ModelConfig:
     required_sequence_length: int = None
     transform: Any = None
     batch_size: int = 1
+    default_scoring_function: Dict = field(
+        default_factory=lambda: {"name": "diff", "func": scores.diff}
+    )
+    # Should we allow multiple default scoring functions?
 
     def __post_init__(self):
         self.model_description = kipoi.get_model_descr(self.model)
@@ -131,11 +137,15 @@ def score_variants(
     vcf_file: str,
     fasta_file: str,
     output_file: Union[str, Path],
-    scoring_functions: List[Dict[str, ScoringFunction]],
+    scoring_functions: List[Dict[str, ScoringFunction]] = [],
 ) -> None:
     kipoi_model = kipoi.get_model(model_config.model)
     sequence_length = model_config.get_required_sequence_length()
     transform = model_config.get_transform()
+    if not scoring_functions:
+        # If no scoring function is provided through cli, fall back
+        # on the default scoring function for the model
+        scoring_functions = [model_config.default_scoring_function]
     column_labels = model_config.get_column_labels(
         scoring_functions=scoring_functions
     )

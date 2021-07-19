@@ -60,12 +60,6 @@ def validate_scoring_function(
                 {"name": scoring_function_name, "func": func}
             )
 
-    if (
-        list(scoring_function) and not scoring_functions
-    ):  # For variant centered models
-        raise click.BadParameter(
-            "Please select atleast one available scoring function."
-        )
     return scoring_functions
 
 
