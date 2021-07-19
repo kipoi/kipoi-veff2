@@ -102,10 +102,7 @@ def test_cli_invalid_scoring_function(runner, tmp_path):
         ],
     )
     assert result.exit_code == 0
-    assert (
-        "Falling back to the default scoring function scores.diff"
-        in result.output
-    )
+    assert "Falling back to the default scoring function" in result.output
 
 
 def test_cli_valid_and_invalid_scoring_function(runner, tmp_path):

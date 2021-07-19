@@ -17,19 +17,15 @@ This is an Ensembl Variant Effect Predictor (VEP) like tool with a subset of kip
 
 We currently support following model/ model groups.
 
-| Model/ Model group           | Type             |
+| Model group                  | Type             |
 |------------------------------|------------------|
 | Basset                       | Variant centered |
-| DeepSEA/predict              | Variant centered |
-| DeepSEA/beluga               | Variant centered |
-| DeepSEA/variantEffects       | Variant centered |
+| DeepSEA                      | Variant centered |
 | DeepBind                     | Variant centered |
-| MMSplice/mtsplice            | Interval based   |
-| MMSplice/deltaLogitPSI       | Interval based   |
-| MMSplice/modularPredictions  | Interval based   |
-| MMSplice/pathogenicity       | Interval based   |
-| MMSplice/splicingEfficiency  | Interval based   |
-
+| MPRA-DragoNN                 | Variant centered |
+| pwm_HOCOMOCO                 | Variant centered |
+| Basenji                      | Variant centered |
+| MMSplice                     | Interval based   |
 
 # Install the conda environment 
 
@@ -92,6 +88,40 @@ cd examples && snakemake -j4 && cd ../ && pytest -k "workflow" -s --disable-warn
 ```
 kipoi_veff2_predict kipoi-veff2/tests/data/general/singlevariant.vcf kipoi-veff2/tests/data/general/hg38_chr22.fa out_vc.tsv -m "DeepSEA/predict" -s "diff" -s "logit"
 ```
+
+### Sequence length
+
+Currently, there are three ways to define the required sequence length of a model in this category. 
+1. Through cli using -l  <int> flag. This option has the highest priority and will over ride any default in the source code. 
+2. Through variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS. Specify a dictionary with the following signature - 
+{
+	"required_sequence_length": <int>
+}
+See the entry for pwm_HOCOMOCO as an example. Currently this feature is only available per model group.
+3. For the rest of the models, sequence length is inferred from ```auto_resize_len``` key of the respective dataloader description.
+
+### Scoring function
+
+Currently, the scoring functions must be defined in scores.py. By default, each model in this category has "diff" as a default scoring funciton. 
+The only exception is Basenji which has "basenji_effect" as default. There are two ways to indicate which scoring function to use. 
+
+1. Through cli using -s flag. This option has the highest priority and will over ride any default in the source code. Just specify the name of the
+function and it will infer which function to call.
+2. Through variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS. Specify a dictionary with the following signature - 
+	"default_scoring_function" : {
+				"name": "func_name", 
+				"func": scores.func_name
+	}
+See the entry for Basenji as an example. Currently this feature is only available per model group.
+
+
+### Batch size
+
+Basenji can only accept a pair of inputs as a batch whereas the rest of the models can accept an arbitrary number of inputs. 
+To handle this special case, we introduced a ```batch_size``` argument to ModelConfig class. This can only be altered via variant_centered.
+VARIANT_CENTERED_MODEL_GROUP_CONFIGS. See the entry for Basenji as an example. For the rest of the models in this category we make a batch for
+each reference and alternative sequence. In order to accomodate Basenji's unique needs, we concatenate a pair of inputs - the first one reference sequence and the second one alternative sequence to form a batch. 
+
 
 ## Interval based
 

@@ -62,7 +62,7 @@ def validate_scoring_function(
     ):  # For variant centered models
         click.echo(
             "Requested scoring function is unavailable. \
-                Falling back to the default scoring function scores.diff"
+                Falling back to the default scoring function"
         )
     return scoring_functions
 
@@ -139,7 +139,6 @@ def score_variants(
                 getattr(model_config, "required_sequence_length")
                 == sequence_length
             )  # TODO: write a meaningful test
-        click.echo(model_config)
         variant_centered.score_variants(
             model_config, input_vcf, input_fasta, output_tsv, scoring_function
         )
