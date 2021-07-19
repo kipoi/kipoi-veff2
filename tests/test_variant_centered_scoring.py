@@ -44,7 +44,7 @@ def test_variant_centered_modelconfig():
 @pytest.mark.parametrize(
     "model_name, header_name, number_of_headers",
     [
-        ("Basenji", "Basenji/4229/diff", 4234),
+        ("Basenji", "Basenji/4229/basenji_effect", 4234),
         ("Basset", "Basset/PANC/diff", 169),
         (
             "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF",

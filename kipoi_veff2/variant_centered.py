@@ -111,7 +111,13 @@ def get_model_config(model_name: str, **kwargs) -> ModelConfig:
 
 VARIANT_CENTERED_MODEL_GROUP_CONFIGS = {
     "pwm_HOCOMOCO": {"required_sequence_length": 100},
-    "Basenji": {"batch_size": 2},
+    "Basenji": {
+        "batch_size": 2,
+        "default_scoring_function": {
+            "name": "basenji_effect",
+            "func": scores.basenji_effect,
+        },
+    },
 }
 
 
@@ -164,26 +170,6 @@ def score_variants(
                 alt_prediction = kipoi_model.predict_on_batch(
                     transform(alt)[np.newaxis]
                 )[0]
-                scores = [
-                    scoring_function["func"](ref_prediction, alt_prediction)
-                    for scoring_function in scoring_functions
-                ]
-                # TODO: Cleaner code
-                scores = [
-                    [score] if np.isscalar(score) else list(score)
-                    for score in scores
-                ]
-                scores = list(itertools.chain.from_iterable(scores))
-                tsv_writer.writerow(
-                    [
-                        variant.chrom,
-                        variant.pos,
-                        variant.id,
-                        variant.ref,
-                        variant.alt,
-                    ]
-                    + scores
-                )
             elif model_config.batch_size == 2:  # Special case for basenji
                 ref_batch = transform(ref)[np.newaxis]
                 alt_batch = transform(alt)[np.newaxis]
@@ -195,21 +181,26 @@ def score_variants(
                     ref_alt_prediction[0],
                     ref_alt_prediction[1],
                 )
-                scores = (alt_prediction - ref_prediction).mean(axis=0)
-                scores = [
-                    [score] if np.isscalar(score) else list(score)
-                    for score in scores
-                ]
-                scores = list(itertools.chain.from_iterable(scores))
-                tsv_writer.writerow(
-                    [
-                        variant.chrom,
-                        variant.pos,
-                        variant.id,
-                        variant.ref,
-                        variant.alt,
-                    ]
-                    + scores
-                )
             else:
                 raise IOError("Only batch size of 1 or 2 is supported")
+
+            scores = [
+                scoring_function["func"](ref_prediction, alt_prediction)
+                for scoring_function in scoring_functions
+            ]
+            # TODO: Cleaner code
+            scores = [
+                [score] if np.isscalar(score) else list(score)
+                for score in scores
+            ]
+            scores = list(itertools.chain.from_iterable(scores))
+            tsv_writer.writerow(
+                [
+                    variant.chrom,
+                    variant.pos,
+                    variant.id,
+                    variant.ref,
+                    variant.alt,
+                ]
+                + scores
+            )

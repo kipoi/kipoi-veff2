@@ -72,3 +72,7 @@ def deepsea_effect(ref_pred: Any, alt_pred: Any) -> List:
     diffs = preds["alt"] - preds["ref"]
     scores = np.abs(logit_diffs) * np.abs(diffs)
     return scores
+
+
+def basenji_effect(ref_pred: Any, alt_pred: Any) -> List:
+    return (alt_pred - ref_pred).mean(axis=0)
