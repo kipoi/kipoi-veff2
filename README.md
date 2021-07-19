@@ -86,18 +86,32 @@ cd examples && snakemake -j4 && cd ../ && pytest -k "workflow" -s --disable-warn
 
 ## Variant centered
 ```
+kipoi_veff2_predict kipoi-veff2/tests/data/general/singlevariant.vcf kipoi-veff2/tests/data/general/hg38_chr22.fa out_vc.tsv -m "DeepSEA/predict" 
+```
+
+You can specify a list of scoring functions like this - 
+```
 kipoi_veff2_predict kipoi-veff2/tests/data/general/singlevariant.vcf kipoi-veff2/tests/data/general/hg38_chr22.fa out_vc.tsv -m "DeepSEA/predict" -s "diff" -s "logit"
 ```
+
 
 ### Sequence length
 
 Currently, there are three ways to define the required sequence length of a model in this category. 
 1. Through cli using -l  <int> flag. This option has the highest priority and will over ride any default in the source code. 
-2. Through variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS. Specify a dictionary with the following signature - 
+2. Through variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS. See the entry for pwm_HOCOMOCO as an example. Currently this feature is only available per model group. Specify a dictionary with the following signature - 
+```	
 {
 	"required_sequence_length": <int>
 }
-See the entry for pwm_HOCOMOCO as an example. Currently this feature is only available per model group.
+```
+It is also possible to use ```get_model_config``` function like so 
+```
+model_group_config_dict = {
+	"required_sequence_length": <int>
+}	
+model_config = variant_centered.get_model_config(model_name, **model_group_config_dict)
+```
 3. For the rest of the models, sequence length is inferred from ```auto_resize_len``` key of the respective dataloader description.
 
 ### Scoring function
@@ -107,20 +121,39 @@ The only exception is Basenji which has "basenji_effect" as default. There are t
 
 1. Through cli using -s flag. This option has the highest priority and will over ride any default in the source code. Just specify the name of the
 function and it will infer which function to call.
-2. Through variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS. Specify a dictionary with the following signature - 
-	"default_scoring_function" : {
-				"name": "func_name", 
-				"func": scores.func_name
-	}
-See the entry for Basenji as an example. Currently this feature is only available per model group.
+2. Through variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS. See the entry for Basenji as an example. Currently this feature is only available per model group. Specify a dictionary with the following signature 
+```
+"default_scoring_function" : 
+{
+	"name": "func_name", 
+	"func": scores.func_name
+} 
+```
+It is also possible to use ```get_model_config``` function like so 
+```
+model_group_config_dict = {
+	"default_scoring_function": 
+	{
+		"name": "func_name", 
+		"func": scores.func_name
+        } 
+}	
+model_config = variant_centered.get_model_config(model_name, **model_group_config_dict)
+```
 
 
 ### Batch size
 
 Basenji can only accept a pair of inputs as a batch whereas the rest of the models can accept an arbitrary number of inputs. 
-To handle this special case, we introduced a ```batch_size``` argument to ModelConfig class. This can only be altered via variant_centered.
-VARIANT_CENTERED_MODEL_GROUP_CONFIGS. See the entry for Basenji as an example. For the rest of the models in this category we make a batch for
-each reference and alternative sequence. In order to accomodate Basenji's unique needs, we concatenate a pair of inputs - the first one reference sequence and the second one alternative sequence to form a batch. 
+To handle this special case, we introduced a ```batch_size``` parameter to ModelConfig class. ```batch_size``` can be altered via variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS. See the entry for Basenji as an example. It is also possible to use ```get_model_config``` function like so 
+```
+model_group_config_dict = {
+	"batch_size": 1
+}	
+model_config = variant_centered.get_model_config(model_name, **model_group_config_dict)
+```
+	
+For the rest of the models in this category we use a batch size of 1 by default. We make two batches out of a row of vcf file - one for each of reference and alternative sequence. In order to accomodate Basenji's unique needs, we concatenate a pair of inputs - the first one reference sequence and the second one alternative sequence to form a batch. 
 
 
 ## Interval based
