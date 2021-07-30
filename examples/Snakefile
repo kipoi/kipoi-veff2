@@ -5,7 +5,7 @@ def get_args(params):
     if "MMSplice" in params.model:
         return "-g input/test.gtf"
     else:
-        return "-s kipoi_veff2.scores.diff -s kipoi_veff2.scores.logit"
+        return "-s diff -s logit"
 
 modelsorgroups = ["Basset", "MMSplice/mtsplice"]
 
