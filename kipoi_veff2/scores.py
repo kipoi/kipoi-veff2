@@ -3,6 +3,16 @@ import warnings
 
 import numpy as np
 
+AVAILABLE_SCORING_FUNCTIONS = [
+    "diff",
+    "alt",
+    "ref",
+    "logit",
+    "logit_alt",
+    "logit_ref",
+    "deepsea_effect",
+]
+
 
 def diff(ref_pred: Any, alt_pred: Any) -> List:
     return alt_pred - ref_pred

@@ -90,7 +90,7 @@ cd examples && snakemake -j4 && cd ../ && pytest -k "workflow" -s --disable-warn
 
 ## Variant centered
 ```
-kipoi_veff2_predict kipoi-veff2/tests/data/general/singlevariant.vcf kipoi-veff2/tests/data/general/hg38_chr22.fa out_vc.tsv -m "DeepSEA/predict" -s "kipoi_veff2.scores.diff" -s "kipoi_veff2.scores.logit"
+kipoi_veff2_predict kipoi-veff2/tests/data/general/singlevariant.vcf kipoi-veff2/tests/data/general/hg38_chr22.fa out_vc.tsv -m "DeepSEA/predict" -s "diff" -s "logit"
 ```
 
 ## Interval based

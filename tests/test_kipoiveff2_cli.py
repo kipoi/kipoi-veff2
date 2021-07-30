@@ -22,7 +22,7 @@ def test_cli_correct_use_variant_centered(runner, tmp_path):
             "-m",
             "DeepSEA/predict",
             "-s",
-            "kipoi_veff2.scores.diff",
+            "diff",
         ],
     )
     assert result.exit_code == 0
@@ -62,7 +62,7 @@ def test_cli_correct_use_multiple_scoring_function(runner, tmp_path):
             "-m",
             "DeepSEA/predict",
             "-s",
-            "kipoi_veff2.scores.diff",
+            "diff",
             "-s",
             "logit",
         ],
@@ -81,7 +81,7 @@ def test_cli_correct_use_different_flag(runner, tmp_path):
             "--model",
             "DeepSEA/predict",
             "--scoring_function",
-            "kipoi_veff2.scores.diff",
+            "diff",
         ],
     )
     assert result.exit_code == 0
@@ -122,11 +122,11 @@ def test_cli_undefined_scoring_function(runner, tmp_path):
             "-m",
             "DeepSEA/predict",
             "-s",
-            "kipoi_veff2.scores.abc",
+            "mymodule.scores.abc",
         ],
     )
     assert result.exit_code == 2
-    assert "'kipoi_veff2.scores' has no attribute 'abc'" in result.output
+    assert "'mymodule.scores' has no attribute 'abc'" in result.output
     assert (
         "Please select atleast one available scoring function" in result.output
     )
@@ -143,7 +143,7 @@ def test_cli_valid_and_invalid_scoring_function(runner, tmp_path):
             "-m",
             "DeepSEA/predict",
             "-s",
-            "kipoi_veff2.scores.logit",
+            "logit",
             "-s",
             "undefined",
         ],
@@ -161,7 +161,7 @@ def test_cli_input_vcf_does_not_exist(runner):
             "-m",
             "DeepSEA/predict",
             "-s",
-            "kipoi_veff2.scores.diff",
+            "diff",
         ],
     )
     assert result.exit_code == 2
@@ -178,7 +178,7 @@ def test_cli_missing_fasta(runner, tmp_path):
             "-m",
             "DeepSEA/predict",
             "-s",
-            "kipoi_veff2.scores.diff",
+            "diff",
         ],
     )
     assert result.exit_code == 2
@@ -195,7 +195,7 @@ def test_cli_missing_output(runner):
             "-m",
             "DeepSEA/predict",
             "-s",
-            "kipoi_veff2.scores.diff",
+            "diff",
         ],
     )
     assert result.exit_code == 2
@@ -211,7 +211,7 @@ def test_cli_missing_model(runner, tmp_path):
             str(test_dir / "data" / "general" / "hg38_chr22.fa"),
             str(tmp_path / "out.tsv"),
             "-s",
-            "kipoi_veff2.scores.diff",
+            "diff",
         ],
     )
     assert result.exit_code == 2
@@ -229,7 +229,7 @@ def test_cli_wrong_model(runner, tmp_path):
             "-m",
             "Dummy",
             "-s",
-            "kipoi_veff2.scores.diff",
+            "diff",
         ],
     )
     assert result.exit_code == 2
@@ -250,7 +250,7 @@ def test_cli_sequence_length(runner, tmp_path):
             "-m",
             "pwm_HOCOMOCO/human/AHR",
             "-s",
-            "kipoi_veff2.scores.diff",
+            "diff",
         ],
     )
     assert result.exit_code == 0
@@ -267,7 +267,7 @@ def test_cli_no_seq_length(runner, tmp_path):
             "-m",
             "pwm_HOCOMOCO/human/AHR",
             "-s",
-            "kipoi_veff2.scores.diff",
+            "diff",
         ],
     )
     assert result.exit_code == 0

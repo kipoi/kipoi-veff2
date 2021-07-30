@@ -4,6 +4,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from kipoi_veff2 import interval_based
 from kipoi_veff2 import variant_centered
+from kipoi_veff2 import scores
 
 ScoringFunction = Callable[[Any, Any], List]
 
@@ -44,20 +45,28 @@ def validate_scoring_function(
         if there are no scoring function]"""
     scoring_functions = []
     for scoring_function_name in list(scoring_function):
-        if "." in scoring_function_name:
-            mod_name, func_name = scoring_function_name.rsplit(".", 1)
-        else:
-            mod_name = func_name = scoring_function_name
-        try:
-            mod = importlib.import_module(mod_name)
-        except ModuleNotFoundError as err:
-            click.echo(f"Removing {scoring_function_name} because {err}")
-            continue
-        try:
+        if scoring_function_name in scores.AVAILABLE_SCORING_FUNCTIONS:
+            click.echo(
+                f"Adding {scoring_function_name} from kipoi_veff2.scores"
+            )
+            func_name = scoring_function_name
+            mod = importlib.import_module("kipoi_veff2.scores")
             func = getattr(mod, func_name)
-        except AttributeError as err:
-            click.echo(f"Removing {scoring_function_name} because {err}")
-            continue
+        else:
+            if "." in scoring_function_name:
+                mod_name, func_name = scoring_function_name.rsplit(".", 1)
+            else:
+                mod_name = func_name = scoring_function_name
+            try:
+                mod = importlib.import_module(mod_name)
+            except ModuleNotFoundError as err:
+                click.echo(f"Removing {scoring_function_name} because {err}")
+                continue
+            try:
+                func = getattr(mod, func_name)
+            except AttributeError as err:
+                click.echo(f"Removing {scoring_function_name} because {err}")
+                continue
         scoring_functions.append({"name": func_name, "func": func})
 
     if (
