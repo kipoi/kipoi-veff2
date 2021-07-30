@@ -3,8 +3,8 @@ import importlib
 from typing import Any, Callable, Dict, List, Optional
 
 from kipoi_veff2 import interval_based
-from kipoi_veff2 import scores
 from kipoi_veff2 import variant_centered
+from kipoi_veff2 import scores
 
 ScoringFunction = Callable[[Any, Any], List]
 
@@ -38,27 +38,36 @@ def validate_model(
 def validate_scoring_function(
     ctx: click.Context, param: click.Parameter, scoring_function: tuple
 ) -> List[Dict[str, ScoringFunction]]:
-    """[This is a callback for validation of scoring functions w.r.t
-        scores.AVAILABLE_SCORING_FUNCTIONS]
+    """[This is a callback for validation of scoring functions]
     Raises:
         click.BadParameter: [An exception that formats
         out a standardized error message for a bad parameter
         if there are no scoring function]"""
     scoring_functions = []
     for scoring_function_name in list(scoring_function):
-        if scoring_function_name not in scores.AVAILABLE_SCORING_FUNCTIONS:
-            print(
-                f"Removing {scoring_function_name} as it is not supported. \
-                  Please consult the documentation"
+        if scoring_function_name in scores.AVAILABLE_SCORING_FUNCTIONS:
+            click.echo(
+                f"Adding {scoring_function_name} from kipoi_veff2.scores"
             )
-        else:
-            func_def = f"kipoi_veff2.scores.{scoring_function_name}"
-            mod_name, func_name = func_def.rsplit(".", 1)
-            mod = importlib.import_module(mod_name)
+            func_name = scoring_function_name
+            mod = importlib.import_module("kipoi_veff2.scores")
             func = getattr(mod, func_name)
-            scoring_functions.append(
-                {"name": scoring_function_name, "func": func}
-            )
+        else:
+            if "." in scoring_function_name:
+                mod_name, func_name = scoring_function_name.rsplit(".", 1)
+            else:
+                mod_name = func_name = scoring_function_name
+            try:
+                mod = importlib.import_module(mod_name)
+            except ModuleNotFoundError as err:
+                click.echo(f"Removing {scoring_function_name} because {err}")
+                continue
+            try:
+                func = getattr(mod, func_name)
+            except AttributeError as err:
+                click.echo(f"Removing {scoring_function_name} because {err}")
+                continue
+        scoring_functions.append({"name": func_name, "func": func})
 
     if (
         list(scoring_function) and not scoring_functions
