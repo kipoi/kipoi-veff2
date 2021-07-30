@@ -47,7 +47,7 @@ def validate_scoring_function(
         if "." in scoring_function_name:
             mod_name, func_name = scoring_function_name.rsplit(".", 1)
         else:
-            mod_name = scoring_function_name
+            mod_name = func_name = scoring_function_name
         try:
             mod = importlib.import_module(mod_name)
         except ModuleNotFoundError as err:
@@ -58,7 +58,7 @@ def validate_scoring_function(
         except AttributeError as err:
             click.echo(f"Removing {scoring_function_name} because {err}")
             continue
-        scoring_functions.append({"name": scoring_function_name, "func": func})
+        scoring_functions.append({"name": func_name, "func": func})
 
     if (
         list(scoring_function) and not scoring_functions
