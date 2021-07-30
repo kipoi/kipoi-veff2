@@ -37,15 +37,18 @@ def validate_model(
 def validate_scoring_function(
     ctx: click.Context, param: click.Parameter, scoring_function: tuple
 ) -> List[Dict[str, ScoringFunction]]:
-    """[This is a callback for validation of scoring functions w.r.t
-        scores.AVAILABLE_SCORING_FUNCTIONS]
+    """[This is a callback for validation of scoring functions]
     Raises:
         click.BadParameter: [An exception that formats
         out a standardized error message for a bad parameter
         if there are no scoring function]"""
     scoring_functions = []
     for scoring_function_name in list(scoring_function):
-        mod_name, func_name = scoring_function_name.rsplit(".", 1)
+        try:
+            mod_name, func_name = scoring_function_name.rsplit(".", 1)
+        except ValueError as err:
+            click.echo(f"Removing {scoring_function_name} due to {err}")
+            continue
         mod = importlib.import_module(mod_name)
         func = getattr(mod, func_name)
         scoring_functions.append({"name": scoring_function_name, "func": func})

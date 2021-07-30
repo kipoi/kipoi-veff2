@@ -22,7 +22,7 @@ def test_cli_correct_use_variant_centered(runner, tmp_path):
             "-m",
             "DeepSEA/predict",
             "-s",
-            "diff",
+            "kipoi_veff2.scores.diff",
         ],
     )
     assert result.exit_code == 0
@@ -62,7 +62,7 @@ def test_cli_correct_use_multiple_scoring_function(runner, tmp_path):
             "-m",
             "DeepSEA/predict",
             "-s",
-            "diff",
+            "kipoi_veff2.scores.diff",
             "-s",
             "logit",
         ],
@@ -81,7 +81,7 @@ def test_cli_correct_use_different_flag(runner, tmp_path):
             "--model",
             "DeepSEA/predict",
             "--scoring_function",
-            "diff",
+            "kipoi_veff2.scores.diff",
         ],
     )
     assert result.exit_code == 0
@@ -118,7 +118,7 @@ def test_cli_valid_and_invalid_scoring_function(runner, tmp_path):
             "-m",
             "DeepSEA/predict",
             "-s",
-            "logit",
+            "kipoi_veff2.scores.logit",
             "-s",
             "undefined",
         ],
@@ -129,7 +129,15 @@ def test_cli_valid_and_invalid_scoring_function(runner, tmp_path):
 def test_cli_input_vcf_does_not_exist(runner):
     result = runner.invoke(
         cli.score_variants,
-        ["in.vcf", "in.fa", "out.tsv", "-m", "DeepSEA/predict", "-s", "diff"],
+        [
+            "in.vcf",
+            "in.fa",
+            "out.tsv",
+            "-m",
+            "DeepSEA/predict",
+            "-s",
+            "kipoi_veff2.scores.diff",
+        ],
     )
     assert result.exit_code == 2
     assert "Error: Invalid value for 'INPUT_VCF'" in result.output
@@ -145,7 +153,7 @@ def test_cli_missing_fasta(runner, tmp_path):
             "-m",
             "DeepSEA/predict",
             "-s",
-            "diff",
+            "kipoi_veff2.scores.diff",
         ],
     )
     assert result.exit_code == 2
@@ -162,7 +170,7 @@ def test_cli_missing_output(runner):
             "-m",
             "DeepSEA/predict",
             "-s",
-            "diff",
+            "kipoi_veff2.scores.diff",
         ],
     )
     assert result.exit_code == 2
@@ -178,7 +186,7 @@ def test_cli_missing_model(runner, tmp_path):
             str(test_dir / "data" / "general" / "hg38_chr22.fa"),
             str(tmp_path / "out.tsv"),
             "-s",
-            "diff",
+            "kipoi_veff2.scores.diff",
         ],
     )
     assert result.exit_code == 2
@@ -196,7 +204,7 @@ def test_cli_wrong_model(runner, tmp_path):
             "-m",
             "Dummy",
             "-s",
-            "diff",
+            "kipoi_veff2.scores.diff",
         ],
     )
     assert result.exit_code == 2
@@ -217,7 +225,7 @@ def test_cli_sequence_length(runner, tmp_path):
             "-m",
             "pwm_HOCOMOCO/human/AHR",
             "-s",
-            "diff",
+            "kipoi_veff2.scores.diff",
         ],
     )
     assert result.exit_code == 0
@@ -234,7 +242,7 @@ def test_cli_no_seq_length(runner, tmp_path):
             "-m",
             "pwm_HOCOMOCO/human/AHR",
             "-s",
-            "diff",
+            "kipoi_veff2.scores.diff",
         ],
     )
     assert result.exit_code == 0

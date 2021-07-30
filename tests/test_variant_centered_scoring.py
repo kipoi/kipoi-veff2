@@ -87,7 +87,9 @@ def test_variant_centered_scoring_single_scoring_function(
         vcf_file=vcf_file,
         fasta_file=fasta_file,
         output_file=output_file,
-        scoring_functions=[{"name": "diff", "func": scores.diff}],
+        scoring_functions=[
+            {"name": "kipoi_veff2.scores.diff", "func": scores.diff}
+        ],
     )
     assert output_file.exists()
     with open(output_file, "r") as output_file_handle:
@@ -179,7 +181,7 @@ def test_variant_centered_scoring_multiple_scoring_functions(
         fasta_file=fasta_file,
         output_file=output_file,
         scoring_functions=[
-            {"name": "diff", "func": scores.diff},
+            {"name": "kipoi_veff2.scores.diff", "func": scores.diff},
             {"name": "logit", "func": scores.logit},
         ],
     )
