@@ -103,6 +103,31 @@ def test_cli_invalid_scoring_function(runner, tmp_path):
     )
     assert result.exit_code == 2
     assert (
+        "Removing undefined because No module named 'undefined'"
+        in result.output
+    )
+    assert (
+        "Please select atleast one available scoring function" in result.output
+    )
+
+
+def test_cli_undefined_scoring_function(runner, tmp_path):
+    test_dir = Path(__file__).resolve().parent
+    result = runner.invoke(
+        cli.score_variants,
+        [
+            str(test_dir / "data" / "general" / "test.vcf"),
+            str(test_dir / "data" / "general" / "hg38_chr22.fa"),
+            str(tmp_path / "out.tsv"),
+            "-m",
+            "DeepSEA/predict",
+            "-s",
+            "kipoi_veff2.scores.abc",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "'kipoi_veff2.scores' has no attribute 'abc'" in result.output
+    assert (
         "Please select atleast one available scoring function" in result.output
     )
 
