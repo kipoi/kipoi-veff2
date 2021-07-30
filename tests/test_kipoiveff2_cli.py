@@ -122,11 +122,11 @@ def test_cli_undefined_scoring_function(runner, tmp_path):
             "-m",
             "DeepSEA/predict",
             "-s",
-            "mymodule.scores.abc",
+            "kipoi_veff2.scores.abc",
         ],
     )
     assert result.exit_code == 2
-    assert "'mymodule.scores' has no attribute 'abc'" in result.output
+    assert "'kipoi_veff2.scores' has no attribute 'abc'" in result.output
     assert (
         "Please select atleast one available scoring function" in result.output
     )
