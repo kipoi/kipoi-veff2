@@ -3,7 +3,6 @@ import importlib
 from typing import Any, Callable, Dict, List, Optional
 
 from kipoi_veff2 import interval_based
-from kipoi_veff2 import scores
 from kipoi_veff2 import variant_centered
 
 ScoringFunction = Callable[[Any, Any], List]
@@ -46,19 +45,10 @@ def validate_scoring_function(
         if there are no scoring function]"""
     scoring_functions = []
     for scoring_function_name in list(scoring_function):
-        if scoring_function_name not in scores.AVAILABLE_SCORING_FUNCTIONS:
-            print(
-                f"Removing {scoring_function_name} as it is not supported. \
-                  Please consult the documentation"
-            )
-        else:
-            func_def = f"kipoi_veff2.scores.{scoring_function_name}"
-            mod_name, func_name = func_def.rsplit(".", 1)
-            mod = importlib.import_module(mod_name)
-            func = getattr(mod, func_name)
-            scoring_functions.append(
-                {"name": scoring_function_name, "func": func}
-            )
+        mod_name, func_name = scoring_function_name.rsplit(".", 1)
+        mod = importlib.import_module(mod_name)
+        func = getattr(mod, func_name)
+        scoring_functions.append({"name": scoring_function_name, "func": func})
 
     if (
         list(scoring_function) and not scoring_functions
