@@ -127,7 +127,15 @@ def test_cli_valid_and_invalid_scoring_function(runner, tmp_path):
 def test_cli_input_vcf_does_not_exist(runner):
     result = runner.invoke(
         cli.score_variants,
-        ["in.vcf", "in.fa", "out.tsv", "-m", "DeepSEA/predict", "-s", "diff"],
+        [
+            "in.vcf",
+            "in.fa",
+            "out.tsv",
+            "-m",
+            "DeepSEA/predict",
+            "-s",
+            "diff",
+        ],
     )
     assert result.exit_code == 2
     assert "Error: Invalid value for 'INPUT_VCF'" in result.output
