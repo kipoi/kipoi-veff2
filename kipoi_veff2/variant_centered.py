@@ -30,7 +30,6 @@ class ModelConfig:
     model: str
     required_sequence_length: int = None
     transform: Any = None
-    batch_size: int = 1
     default_scoring_function: Dict = field(
         default_factory=lambda: {"name": "diff", "func": scores.diff}
     )
@@ -112,7 +111,6 @@ def get_model_config(model_name: str, **kwargs) -> ModelConfig:
 VARIANT_CENTERED_MODEL_GROUP_CONFIGS = {
     "pwm_HOCOMOCO": {"required_sequence_length": 100},
     "Basenji": {
-        "batch_size": 2,
         "default_scoring_function": {
             "name": "basenji_effect",
             "func": lambda ref_pred, alt_pred: (alt_pred - ref_pred).mean(
@@ -165,26 +163,14 @@ def score_variants(
         for ref, alt, variant in dataloader(
             vcf_file, fasta_file, sequence_length
         ):
-            if model_config.batch_size == 1:
-                ref_prediction = kipoi_model.predict_on_batch(
-                    transform(ref)[np.newaxis]
-                )[0]
-                alt_prediction = kipoi_model.predict_on_batch(
-                    transform(alt)[np.newaxis]
-                )[0]
-            elif model_config.batch_size == 2:  # Special case for basenji
-                ref_batch = transform(ref)[np.newaxis]
-                alt_batch = transform(alt)[np.newaxis]
-                ref_alt_batch = np.concatenate((ref_batch, alt_batch), axis=0)
-                ref_alt_prediction = kipoi_model.predict_on_batch(
-                    ref_alt_batch
-                )
-                ref_prediction, alt_prediction = (
-                    ref_alt_prediction[0],
-                    ref_alt_prediction[1],
-                )
-            else:
-                raise IOError("Only batch size of 1 or 2 is supported")
+            ref_batch = transform(ref)[np.newaxis]
+            alt_batch = transform(alt)[np.newaxis]
+            ref_alt_batch = np.concatenate((ref_batch, alt_batch), axis=0)
+            ref_alt_prediction = kipoi_model.predict_on_batch(ref_alt_batch)
+            ref_prediction, alt_prediction = (
+                ref_alt_prediction[0],
+                ref_alt_prediction[1],
+            )
 
             scores = [
                 scoring_function["func"](ref_prediction, alt_prediction)
