@@ -115,7 +115,9 @@ VARIANT_CENTERED_MODEL_GROUP_CONFIGS = {
         "batch_size": 2,
         "default_scoring_function": {
             "name": "basenji_effect",
-            "func": scores.basenji_effect,
+            "func": lambda ref_pred, alt_pred: (alt_pred - ref_pred).mean(
+                axis=0
+            ),
         },
     },
 }
