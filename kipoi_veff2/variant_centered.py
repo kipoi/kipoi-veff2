@@ -1,5 +1,5 @@
 import csv
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import itertools
 from pathlib import Path
 from typing import Any, Dict, List, Iterator, Callable, Union
@@ -11,12 +11,15 @@ from kipoiseq.dataclasses import Interval, Variant
 from kipoiseq.extractors import VariantSeqExtractor
 from kipoiseq.transforms import ReorderedOneHot
 
+from kipoi_veff2 import scores
+
 MODEL_GROUPS = {
     "Basset",
     "DeepBind",
     "DeepSEA",
     "MPRA-DragoNN",
     "pwm_HOCOMOCO",
+    "Basenji",
 }
 
 ScoringFunction = Callable[[Any, Any], List]
@@ -27,6 +30,13 @@ class ModelConfig:
     model: str
     required_sequence_length: int = None
     transform: Any = None
+    batch_size: int = 1
+    default_scoring_function: Dict = field(
+        default_factory=lambda: {"name": "diff", "func": scores.diff}
+    )
+    # This must be defined this way because dataclasses dont allow mutable
+    # data type at initialization
+    # Should we allow multiple default scoring functions?
 
     def __post_init__(self):
         self.model_description = kipoi.get_model_descr(self.model)
@@ -70,7 +80,7 @@ class ModelConfig:
     ) -> List:
         targets = self.model_description.schema.targets
         column_labels = targets.column_labels
-        target_shape = targets.shape[0]
+        target_shape = targets.shape[-1]  # TODO: Verify with Ziga
         variant_column_labels = ["#CHROM", "POS", "ID", "REF", "ALT"]
         if column_labels:
             if len(column_labels) == target_shape:
@@ -100,7 +110,16 @@ def get_model_config(model_name: str, **kwargs) -> ModelConfig:
 
 
 VARIANT_CENTERED_MODEL_GROUP_CONFIGS = {
-    "pwm_HOCOMOCO": {"required_sequence_length": 100}
+    "pwm_HOCOMOCO": {"required_sequence_length": 100},
+    "Basenji": {
+        "batch_size": 2,
+        "default_scoring_function": {
+            "name": "basenji_effect",
+            "func": lambda ref_pred, alt_pred: (alt_pred - ref_pred).mean(
+                axis=0
+            ),
+        },
+    },
 }
 
 
@@ -128,11 +147,15 @@ def score_variants(
     vcf_file: str,
     fasta_file: str,
     output_file: Union[str, Path],
-    scoring_functions: List[Dict[str, ScoringFunction]],
+    scoring_functions: List[Dict[str, ScoringFunction]] = [],
 ) -> None:
     kipoi_model = kipoi.get_model(model_config.model)
     sequence_length = model_config.get_required_sequence_length()
     transform = model_config.get_transform()
+    if not scoring_functions:
+        # If no scoring function is provided through cli, fall back
+        # on the default scoring function for the model
+        scoring_functions = [model_config.default_scoring_function]
     column_labels = model_config.get_column_labels(
         scoring_functions=scoring_functions
     )
@@ -142,12 +165,27 @@ def score_variants(
         for ref, alt, variant in dataloader(
             vcf_file, fasta_file, sequence_length
         ):
-            ref_prediction = kipoi_model.predict_on_batch(
-                transform(ref)[np.newaxis]
-            )[0]
-            alt_prediction = kipoi_model.predict_on_batch(
-                transform(alt)[np.newaxis]
-            )[0]
+            if model_config.batch_size == 1:
+                ref_prediction = kipoi_model.predict_on_batch(
+                    transform(ref)[np.newaxis]
+                )[0]
+                alt_prediction = kipoi_model.predict_on_batch(
+                    transform(alt)[np.newaxis]
+                )[0]
+            elif model_config.batch_size == 2:  # Special case for basenji
+                ref_batch = transform(ref)[np.newaxis]
+                alt_batch = transform(alt)[np.newaxis]
+                ref_alt_batch = np.concatenate((ref_batch, alt_batch), axis=0)
+                ref_alt_prediction = kipoi_model.predict_on_batch(
+                    ref_alt_batch
+                )
+                ref_prediction, alt_prediction = (
+                    ref_alt_prediction[0],
+                    ref_alt_prediction[1],
+                )
+            else:
+                raise IOError("Only batch size of 1 or 2 is supported")
+
             scores = [
                 scoring_function["func"](ref_prediction, alt_prediction)
                 for scoring_function in scoring_functions

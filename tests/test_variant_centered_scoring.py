@@ -7,9 +7,30 @@ from kipoi_veff2 import scores
 import pytest
 
 
+def test_variant_centered_modelconfig_batchsize():
+    test_model_config_dict = (
+        variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS.get(
+            "Basenji", {}
+        )
+    )
+    test_model_config = variant_centered.get_model_config(
+        "Basenji", **test_model_config_dict
+    )
+    assert test_model_config.model == "Basenji"
+    assert test_model_config.batch_size == 2
+
+
 def test_variant_centered_modelconfig():
-    test_model_config = variant_centered.get_model_config("DeepSEA/predict")
+    test_model_config_dict = (
+        variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS.get(
+            "DeepSEA/predict", {}
+        )
+    )
+    test_model_config = variant_centered.get_model_config(
+        "DeepSEA/predict", **test_model_config_dict
+    )
     assert test_model_config.model == "DeepSEA/predict"
+    assert test_model_config.batch_size == 1
     assert test_model_config.get_required_sequence_length() == 1000
     assert (
         type(test_model_config.get_transform()).__name__ == "ReorderedOneHot"
@@ -23,6 +44,7 @@ def test_variant_centered_modelconfig():
 @pytest.mark.parametrize(
     "model_name, header_name, number_of_headers",
     [
+        ("Basenji", "Basenji/4229/basenji_effect", 4234),
         ("Basset", "Basset/PANC/diff", 169),
         (
             "DeepBind/Homo_sapiens/RBP/D00084.001_RNAcompete_A1CF",
@@ -87,7 +109,6 @@ def test_variant_centered_scoring_single_scoring_function(
         vcf_file=vcf_file,
         fasta_file=fasta_file,
         output_file=output_file,
-        scoring_functions=[{"name": "diff", "func": scores.diff}],
     )
     assert output_file.exists()
     with open(output_file, "r") as output_file_handle:

@@ -38,11 +38,9 @@ def validate_model(
 def validate_scoring_function(
     ctx: click.Context, param: click.Parameter, scoring_function: tuple
 ) -> List[Dict[str, ScoringFunction]]:
-    """[This is a callback for validation of scoring functions]
-    Raises:
-        click.BadParameter: [An exception that formats
-        out a standardized error message for a bad parameter
-        if there are no scoring function]"""
+    """[This is a callback for validation of scoring functions w.r.t
+    scores.AVAILABLE_SCORING_FUNCTIONS]
+    """
     scoring_functions = []
     for scoring_function_name in list(scoring_function):
         if scoring_function_name in scores.AVAILABLE_SCORING_FUNCTIONS:
@@ -72,8 +70,9 @@ def validate_scoring_function(
     if (
         list(scoring_function) and not scoring_functions
     ):  # For variant centered models
-        raise click.BadParameter(
-            "Please select atleast one available scoring function."
+        click.echo(
+            "Requested scoring function is unavailable. \
+                Falling back to the default scoring function"
         )
     return scoring_functions
 
@@ -137,7 +136,7 @@ def score_variants(
             )
         )
         if sequence_length is not None:
-            # None is to match the value we use to in
+            # None is to match the value we use in
             # get_required_sequence_length
             model_group_config_dict[
                 "required_sequence_length"
@@ -150,7 +149,6 @@ def score_variants(
                 getattr(model_config, "required_sequence_length")
                 == sequence_length
             )  # TODO: write a meaningful test
-        click.echo(model_config)
         variant_centered.score_variants(
             model_config, input_vcf, input_fasta, output_tsv, scoring_function
         )
