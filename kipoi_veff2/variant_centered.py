@@ -79,7 +79,7 @@ class ModelConfig:
     ) -> List:
         targets = self.model_description.schema.targets
         column_labels = targets.column_labels
-        target_shape = targets.shape[-1]  # TODO: Verify with Ziga
+        target_shape = targets.shape[-1]
         variant_column_labels = ["#CHROM", "POS", "ID", "REF", "ALT"]
         if column_labels:
             if len(column_labels) == target_shape:

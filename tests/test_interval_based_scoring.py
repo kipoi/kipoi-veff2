@@ -11,13 +11,6 @@ def test_interval_based_modelconfig():
         "MMSplice/pathogenicity"
     ]
     assert test_model_config.model == "MMSplice/pathogenicity"
-    assert (
-        test_model_config.model_description.info.authors[0].name == "Jun Cheng"
-    )
-    assert (
-        type(test_model_config.kipoi_model_with_dataloader).__name__
-        == "MMSpliceModel"
-    )
 
 
 # TODO: Second item of pathogenecity output tuple is empty. Why?
@@ -78,6 +71,11 @@ def test_interval_based_scoring(
         fasta_file=fasta_file,
         gtf_file=gtf_file,
         output_file=output_file,
+    )
+    assert model_config.model_description.info.authors[0].name == "Jun Cheng"
+    assert (
+        type(model_config.kipoi_model_with_dataloader).__name__
+        == "MMSpliceModel"
     )
     assert output_file.exists()
     with open(output_file, "r") as output_file_handle:

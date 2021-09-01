@@ -15,13 +15,8 @@ class ModelConfig:
     cli_to_dataloader_parameter_map: Dict[str, str]
     get_variant_info: Callable[[Dict[str, Any]], Dict[str, str]]
 
-    def __post_init__(self):
-        self.model_description = kipoi.get_model_descr(self.model)
-        self.kipoi_model_with_dataloader = kipoi.get_model(
-            self.model, source="kipoi", with_dataloader=True
-        )
-
     def get_column_labels(self) -> List:
+        self.model_description = kipoi.get_model_descr(self.model)
         targets = self.model_description.schema.targets
         column_labels = targets.column_labels
         target_shape = targets.shape[0]
@@ -43,6 +38,9 @@ class ModelConfig:
 
     # TODO: Should Any be Callable?
     def get_dataloader(self, cli_params: Dict[str, str]) -> Any:
+        self.kipoi_model_with_dataloader = kipoi.get_model(
+            self.model, source="kipoi", with_dataloader=True
+        )
         dataloader_args = {}
         if sorted(cli_params.keys()) != sorted(
             self.cli_to_dataloader_parameter_map.keys()
