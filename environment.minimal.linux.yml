@@ -12,6 +12,7 @@ dependencies:
   - setuptools=52.0.0
   - pip=20.2.4
   - pip:
+    - pyranges==0.0.104
     - h5py==2.10.0
     - keras==2.2.4
     - keras-applications==1.0.8
