@@ -275,15 +275,19 @@ def score_variants(
             aggregated_scores = scoring_functions[0]["func"](
                 ref_predictions, alt_predictions
             )
+            if aggregated_scores.ndim == 0:
+                aggregated_scores = aggregated_scores[np.newaxis]
             if aggregated_scores.ndim == 1:
                 aggregated_scores = aggregated_scores[:, np.newaxis]
             for scoring_function in scoring_functions[1:]:
                 scores = scoring_function["func"](
                     ref_predictions, alt_predictions
                 )
-
+                if scores.ndim == 0:
+                    scores = scores[np.newaxis]
                 if scores.ndim == 1:
                     scores = scores[:, np.newaxis]
+
                 aggregated_scores = np.concatenate(
                     (
                         aggregated_scores,
