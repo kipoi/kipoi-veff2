@@ -30,7 +30,7 @@ class ModelConfig:
     model: str
     required_sequence_length: int = None
     transform: Any = None
-    batch_size: int = 32
+    batch_size: int = 1000
     default_scoring_function: Dict = field(
         default_factory=lambda: {"name": "diff", "func": scores.diff}
     )
@@ -175,60 +175,6 @@ def dataloader(
             interval, variants=[variant], anchor=interval.center()
         )
         yield (ref, alt, variant)
-
-
-# def score_variants(
-#     model_config: ModelConfig,
-#     vcf_file: str,
-#     fasta_file: str,
-#     output_file: Union[str, Path],
-#     scoring_functions: List[Dict[str, ScoringFunction]] = [],
-# ) -> None:
-#     kipoi_model = kipoi.get_model(model_config.model)
-#     sequence_length = model_config.get_required_sequence_length()
-#     transform = model_config.get_transform()
-#     if not scoring_functions:
-#         # If no scoring function is provided through cli, fall back
-#         # on the default scoring function for the model
-#         scoring_functions = [model_config.default_scoring_function]
-#     column_labels = model_config.get_column_labels(
-#         scoring_functions=scoring_functions
-#     )
-#     with open(output_file, "w") as output_tsv:
-#         tsv_writer = csv.writer(output_tsv, delimiter="\t")
-#         tsv_writer.writerow(column_labels)
-#         for ref, alt, variant in dataloader(
-#             vcf_file, fasta_file, sequence_length
-#         ):
-#             ref_batch = transform(ref)[np.newaxis]
-#             alt_batch = transform(alt)[np.newaxis]
-#             ref_alt_batch = np.concatenate((ref_batch, alt_batch), axis=0)
-#             ref_alt_prediction = kipoi_model.predict_on_batch(ref_alt_batch)
-#             ref_prediction, alt_prediction = (
-#                 ref_alt_prediction[0],
-#                 ref_alt_prediction[1],
-#             )
-
-#             scores = [
-#                 scoring_function["func"](ref_prediction, alt_prediction)
-#                 for scoring_function in scoring_functions
-#             ]
-#             # TODO: Cleaner code
-#             scores = [
-#                 [score] if np.isscalar(score) else list(score)
-#                 for score in scores
-#             ]
-#             scores = list(itertools.chain.from_iterable(scores))
-#             tsv_writer.writerow(
-#                 [
-#                     variant.chrom,
-#                     variant.pos,
-#                     variant.id,
-#                     variant.ref,
-#                     variant.alt,
-#                 ]
-#                 + scores
-#             )
 
 
 def score_variants(
