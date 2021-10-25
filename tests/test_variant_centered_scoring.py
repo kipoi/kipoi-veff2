@@ -17,6 +17,7 @@ def test_variant_centered_modelconfig_batchsize():
         "Basenji", **test_model_config_dict
     )
     assert test_model_config.model == "Basenji"
+    assert test_model_config.batch_size == 1
 
 
 def test_variant_centered_modelconfig():
@@ -29,6 +30,7 @@ def test_variant_centered_modelconfig():
         "DeepSEA/predict", **test_model_config_dict
     )
     assert test_model_config.model == "DeepSEA/predict"
+    assert test_model_config.batch_size == 1000
     assert test_model_config.get_required_sequence_length() == 1000
     assert (
         type(test_model_config.get_transform()).__name__ == "ReorderedOneHot"
