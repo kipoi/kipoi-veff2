@@ -1,19 +1,19 @@
 # Description
 
-  
-
 This is an Ensembl Variant Effect Predictor (VEP) like tool with a subset of kipoi models. Models in Kipoi can be broadly classified into two groups -
 
-- Models that are capable of inferring from any part of the genome. These models will use variant centered effect prediction. The algorithm is as follows - 
-
+- Models that are capable of inferring from any part of the genome. These models will use variant centered effect prediction. The chosen model groups use `kipoiseq.datalaoders.SeqIntervalDl` as their default dataloader. The algorithm is as follows:
 	- For every variant a sequence centred on said variant is generated.
-	- That sequence is then mutated by modifying the central base twice - once with reference and once with alternative allele - generating two sets of sequences.- Infer twice with each model, once each with the above two sequences.
+	- That sequence is then mutated by modifying the central base twice - once with reference and once with alternative allele - generating two sets of sequences.
+	- Infer twice with each model, once each with the above two sequences.
 	- Perform scoring with the above two predictions with scoring functions like diff, logit, etc.
+- ![alt text](misc/variantcentered.png?raw=true "variant centered")
+
+- Models that are capable of Inferring from only selected parts of the genome. For example, splicing models like MMSplice that are capable of inferring only near the splice site as it has been trained on such sites. We denote them as interval based effect predicttion and it utilizes the model specific dataloaders directly.
+- ![alt text](misc/intervalbased.png?raw=true "interval based")
 
 
-- Models that are capable of Inferring from only selected parts of the genome. For example, splicing models like MMSplice that are capable of inferring only near the splice site as it has been trained on such sites. These models will use interval based effect prediction. We are utilizing the model specific dataloaders. 
-
-# Available models
+## Available models
 
 We currently support following model/ model groups.
 
@@ -27,162 +27,189 @@ We currently support following model/ model groups.
 | Basenji                      | Variant centered |
 | MMSplice                     | Interval based   |
 
-# Install the conda environment 
+## Installation
 
-Currently the conda environment provided in this repo resolves in Ubuntu and MacOS. Our test specs are
-```
-Ubuntu: 20.04
-MacOS: 10.15
-Conda distribution: Miniconda 4.9.2
-```
+The installation operates in two stages - first a conda environment is created with necessary dependencies and after that kipoi-veff2 is installed in that environment.
 
-## Ubuntu
+1. ### Install the conda environment appropriate to your operating system
 
-```
-conda env create -f environment.ubuntu.yml
-conda activate kipoi-veff2
-python -m pip uninstall -y enum34 && python -m pip install . (Note: I am not sure yet why or how enum34 get installed)
-```
+	Currently the provided conda environment(s) resolve in Ubuntu, MacOS and CentOS.
 
-## MacOS
-```
-conda env create -f environment.osx.yml
-conda activate kipoi-veff2
-python -m pip uninstall -y enum34 && python -m pip install . (Note: I am not sure yet why or how enum34 get installed)
-```
+	#### Ubuntu
 
-## General purpose environment
+	```bash
+	conda env create -f environment.ubuntu.yml
+	```
 
-A more abridged version of the above environments is avaiable in environment.minimal.yml. 
-This has been tested on CentOS Linux with conda 4.7.10. This environment intentionally does
-not contain snakemake in order to keep it minimal. Please be sure to install snakemake before
-using the Snakefile inside examples. 
+	#### MacOS
 
-Note: For older version of conda (4.7.10), pinning cyvcf2 to 0.11 seems to work in CentOS Linux
+	```bash
+	conda env create -f environment.osx.yml
+	```
 
-We are also providing a docker containers for development purposes as well. The use is follows
+	#### General purpose environment
 
-### Build docker container
+	A more abridged version with minimal sets of dependencies is avaiable in environment.minimal.yml. This has been tested on CentOS Linux with conda 4.7.10. This environment intentionally does not contain snakemake in order to keep it minimal. Please be sure to install snakemake before
+	using the Snakefile inside examples.
 
-```
-docker build --no-cache -t kipoi-veff2-docker:latest -f Dockerfile .
-```
+2. ### Install kipoi-veff2
 
-### Run the docker container
+	```bash
+	conda activate kipoi-veff2
+	python -m pip uninstall -y enum34 && python -m pip install .
+	```
 
-```
-docker run -v $PWD:/app/ -it kipoi-veff2-docker:latest
-```
-This will return a bash shell with the conda environment already activated
+	Note: For older version of conda (4.7.10), pinning cyvcf2 to 0.11 seems to work in CentOS Linux
 
-# Test CI
+## Tests
 
-```
-pytest -k "not workflow" -s --disable-warnings tests
-cd examples && snakemake -j4 && cd ../ && pytest -k "workflow" -s --disable-warnings tests
+### Package
+
+```bash
+pytest -k "not workflow"  tests
 ```
 
-# Usage
+### Workflow
 
-## Variant centered
-```
-kipoi_veff2_predict kipoi-veff2/tests/data/general/singlevariant.vcf kipoi-veff2/tests/data/general/hg38_chr22.fa out_vc.tsv -m "DeepSEA/predict" 
-```
-
-You can specify a list of scoring functions like this - 
-```
-kipoi_veff2_predict kipoi-veff2/tests/data/general/singlevariant.vcf kipoi-veff2/tests/data/general/hg38_chr22.fa out_vc.tsv -m "DeepSEA/predict" -s "diff" -s "logit"
+```bash
+cd examples && snakemake -j4 && cd ../ && pytest -k "workflow" tests
 ```
 
+## Usage
+
+### Variant centered
+
+```bash
+kipoi_veff2_predict <input-vcf> <input-fasta> <output-tsv> -m "DeepSEA/predict" 
+```
+
+or
+
+```python
+from kipoi_veff2 import variant_centered
+
+model_group = model_name.split("/")[0]
+model_group_config_dict = (
+	variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS.get(
+        model_group, {}
+    )
+)
+
+model_config = variant_centered.get_model_config(model_name, **model_group_config_dict)
+
+variant_centered.score_variants(
+    model_config=model_config,
+    vcf_file=vcf_file,
+    fasta_file=fasta_file,
+    output_file=output_file,
+)
+```
+
+You can specify a list of scoring functions defined in kipoi_veff2.scores like so -
+
+```bash
+kipoi_veff2_predict  <input-vcf> <input-fasta> <output-tsv> -m "DeepSEA/predict" -s "diff" -s "logit"
+```
+
+or
+
+```python
+from kipoi_veff2 import scores, variant_centered
+
+model_group = model_name.split("/")[0]
+model_group_config_dict = (
+	variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS.get(
+        model_group, {}
+    )
+)
+
+model_config = variant_centered.get_model_config(model_name, **model_group_config_dict)
+
+variant_centered.score_variants(
+    model_config=model_config,
+    vcf_file=vcf_file,
+    fasta_file=fasta_file,
+    output_file=output_file,
+	scoring_functions=[
+            {"name": "diff", "func": scores.diff},
+            {"name": "logit", "func": scores.logit},
+        ]
+)
+```
 
 ### Sequence length
 
-Currently, there are three ways to define the required sequence length of a model in this category. 
-1. Through cli using -l  <int> flag. This option has the highest priority and will over ride any default in the source code. 
-2. Through variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS. See the entry for pwm_HOCOMOCO as an example. Currently this feature is only available per model group. Specify a dictionary with the following signature - 
-```	
-{
-	"required_sequence_length": <int>
-}
-```
-It is also possible to use ```get_model_config``` function like so 
-```
-model_group_config_dict = {
-	"required_sequence_length": <int>
-}	
-model_config = variant_centered.get_model_config(model_name, **model_group_config_dict)
-```
-3. For the rest of the models, sequence length is inferred from ```auto_resize_len``` key of the respective dataloader description.
+Currently, there are three ways to define the required sequence length of a model in this category.
+
+1. Through cli using -l flag. This option has the highest priority and will over ride any default in the source code.
+
+2. Through variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS.
+See the entry for pwm_HOCOMOCO as an example.
+Currently this feature is only available per model group.
+
+3. Otherwise, sequence length is inferred from ```auto_resize_len``` key of the respective dataloader description.
 
 ### Scoring function
 
-Currently, the scoring functions must be defined in scores.py. By default, each model in this category has "diff" as a default scoring funciton. 
-The only exception is Basenji which has "basenji_effect" as default. There are two ways to indicate which scoring function to use. 
+Currently, the scoring functions must be defined in kipoi_veff2.scores. By default, each model in this category has "diff" as a default scoring funciton.  The only exception is Basenji which has "basenji_effect" as default. There are two ways to indicate which scoring function to use.
 
-1. Through cli using -s flag. This option has the highest priority and will over ride any default in the source code. Just specify the name of the
-function and it will infer which function to call.
-2. Through variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS. See the entry for Basenji as an example. Currently this feature is only available per model group. Specify a dictionary with the following signature 
-```
-"default_scoring_function" : 
-{
-	"name": "func_name", 
-	"func": scores.func_name
-} 
-```
-It is also possible to use ```get_model_config``` function like so 
-```
-model_group_config_dict = {
-	"default_scoring_function": 
-	{
-		"name": "func_name", 
-		"func": scores.func_name
-        } 
-}	
-model_config = variant_centered.get_model_config(model_name, **model_group_config_dict)
-```
+1. Through cli using -s flag. This option has the highest priority and will over ride any default. Just specify the name of the function and it will infer which function to call.
 
+2. Through variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS. See the entry for Basenji as an example. Currently this feature is only available per model group.
 
 ### Batch size
 
-Basenji can only accept a pair of inputs as a batch whereas the rest of the models can accept an arbitrary number of inputs. 
-To handle this special case, we introduced a ```batch_size``` parameter to ModelConfig class. ```batch_size``` can be altered via variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS. See the entry for Basenji as an example. It is also possible to use ```get_model_config``` function like so 
-```
-model_group_config_dict = {
-	"batch_size": 1
-}	
-model_config = variant_centered.get_model_config(model_name, **model_group_config_dict)
-```
-	
-For the rest of the models in this category we use a batch size of 1 by default. We make two batches out of a row of vcf file - one for each of reference and alternative sequence. In order to accomodate Basenji's unique needs, we concatenate a pair of inputs - the first one reference sequence and the second one alternative sequence to form a batch. 
+- Basenji can only accept a pair of inputs as a batch whereas the rest of the models can accept an arbitrary number of inputs. To handle this special case, we introduced a ```batch_size``` parameter to ModelConfig class.```batch_size``` can be altered via variant_centered.VARIANT_CENTERED_MODEL_GROUP_CONFIGS. See the entry for Basenji as an example.
 
+- For the rest of the models in this category we use a batch size of 1000 by default. We make two batches out of a list of 1000 reference sequences and alternative sequences for each of 1000 variants. In order to accomodate Basenji's unique needs, we concatenate a pair of inputs - the first one reference sequence and the second one alternative sequence to form a batch.
 
 ## Interval based
 
+```bash
+kipoi_veff2_predict <input-vcf> <input-fasta> -g <input-gtf> <output-tsv> -m "MMSplice/mtsplice"
 ```
-kipoi_veff2_predict kipoi-veff2/tests/data/interval-based/test.vcf kipoi-veff2/tests/data/interval-based/test.fa -g kipoi-veff2/tests/data/interval-based/test.gtf out_i.tsv -m "MMSplice/mtsplice"
+
+or
+
+```python
+from kipoi_veff2 import interval_based
+
+model_config = interval_based.INTERVAL_BASED_MODEL_CONFIGS[model_name]
+interval_based.score_variants(
+	model_config=model_config,
+	vcf_file=vcf_file,
+	fasta_file=fasta_file,
+	gtf_file=gtf_file,
+	output_file=output_file,
+)
 ```
 
-# Run the full workflow
+## Optional merge functionality
 
-We use snakemake for running a full workflow. Snakemake is installed in the conda environment provided by the environment file environment.ubuntu.yml and environment.macos.yml
+For model groups who have a large number of models (Example: DeepBind), it is more convenient to output a single file by merging all the scored effect predictions across all the models in the group. For this, we provide a merge cli as described below.
+
+```bash
+kipoi_veff2_merge output1.tsv output2.tsv ... output.10.tsv merged.tsv
 ```
-cd examples && snakemake -j4
-```
-The output will be available in examples/output.merged.tsv 
 
-For model groups which has a large number of models (Example: DeepBind), it is recommended to use the above workflow. The list of 
-models are generated from the variable modelsorgroups. Updated modelsorgroups variable in examples/Snakefile according to your need. 
-This variable can accept a model name (MMSplice/mtsplice), a model group (DeepSEA) or a sub model group (DeepBind/Homo_sapiens/RBP)
-provided they are available in kipoi. Please note - names are case sensitive
+## Running multiple models and/or vcf/fasta pairs
 
-# TODO: Add instruction for working with big vcf files 
+### Snakemake workflow
 
+- We use [snakemake](https://snakemake.readthedocs.io/en/stable/index.html) for running a full workflow with multiple models and/or vcf/fasta files. An example workflow with multiple models and a single set of vcf and fasta file is in `examples/Snakefile` which you can execute by
 
-### pre-commit hooks - black and flake8
+	```bash
+	cd examples && snakemake -j4
+	```
 
-For the first time,
-```
-pip install pre-commit 
-pre-commit install
-pre-commit run --all-files
-```
+	In this workflow, one job is submitted per model for a total of 2 jobs. The output will be available in examples/output.merged.tsv.
+
+- A more complicated workflow is available in `examples/multimodelmultiinput/Snakefile`. Here all files with an extension .vcf.gz and corresponding fasta files were picked from a user specified directory. One job is submitted per model per vcf/fasta file pair - a total of 1217 jobs per vcf/fasta pair. Finally, the outputs were merged across models in a group producing a single output file for each model group and each vcf/fasta pair.
+
+### General recommendations
+
+- I recommend sharding large vcf files into smaller vcfs before running this workflow. Since this code is single threaded overall runtime will benefit from running as many simultaneous jobs as possible.
+- For all models except Basenji, a larger batch_size (1000 by default) may make execution time smaller.
+- DeepSEA models may benefit from using a gpu.
+- I highly recommend using cluster architecture specific [snakemake profiles](https://github.com/Snakemake-Profiles) in hpc clusters.
+- In hpc clusters, make sure `model_sources.kipoi.auto_update` is `False` in `~/.kipoi/config.yaml`. Due to a race condition in kipoi sometimes jobs get stuck otherwise.
