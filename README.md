@@ -7,8 +7,11 @@ This is an Ensembl Variant Effect Predictor (VEP) like tool with a subset of kip
 	- That sequence is then mutated by modifying the central base twice - once with reference and once with alternative allele - generating two sets of sequences.
 	- Infer twice with each model, once each with the above two sequences.
 	- Perform scoring with the above two predictions with scoring functions like diff, logit, etc.
+- ![alt text](misc/variantcentered.png?raw=true "variant centered")
 
 - Models that are capable of Inferring from only selected parts of the genome. For example, splicing models like MMSplice that are capable of inferring only near the splice site as it has been trained on such sites. We denote them as interval based effect predicttion and it utilizes the model specific dataloaders directly.
+- ![alt text](misc/intervalbased.png?raw=true "interval based")
+
 
 ## Available models
 
