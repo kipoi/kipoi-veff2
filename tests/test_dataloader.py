@@ -12,14 +12,54 @@ def test_variant_cenetered_dataloader():
     fasta_file = str(test_dir / "data" / "general" / "hg38_chr22.fa")
     sequence_length = 10
 
-    for ref, alt, variant in variant_centered.dataloader(
+    for ref, alt, variant in variant_centered.batch_dataloader(
         vcf_file=vcf_file,
         fasta_file=fasta_file,
         sequence_length=sequence_length,
+        batch_size=1,
     ):
-        assert ref == "TGGTGATTTT"
-        assert alt == "TGGTTATTTT"
-        assert variant == Variant(
+        assert ref == ["TGGTGATTTT"]
+        assert alt == ["TGGTTATTTT"]
+        assert variant == [
+            Variant(chrom="chr22", pos=21541590, ref="A", alt="T", id="None")
+        ]
+
+
+def test_variant_cenetered_dataloader_bigger_batch_size():
+    test_dir = Path(__file__).resolve().parent
+    vcf_file = str(test_dir / "data" / "general" / "test.vcf")
+    fasta_file = str(test_dir / "data" / "general" / "hg38_chr22.fa")
+    sequence_length = 10
+
+    for refs, alts, variants in variant_centered.batch_dataloader(
+        vcf_file=vcf_file,
+        fasta_file=fasta_file,
+        sequence_length=sequence_length,
+        batch_size=20,
+    ):
+        assert refs == [
+            "TGGTGATTTT",
+            "CTGTGCTCAA",
+            "CACCAAGGCC",
+            "CACCAAGGCC",
+            "CACCAAGGCC",
+            "CACCAAGGCC",
+            "TTATTTATTT",
+            "ATCTTTATTT",
+            "TGAGGATGTT",
+        ]
+        assert alts == [
+            "TGGTTATTTT",
+            "CTGTCCTCAA",
+            "CACCGAGGCC",
+            "CACCGGCCTG",
+            "CCACCAGGCC",
+            "CACCGAGGCC",
+            "TTATGTATTT",
+            "ATCTATATTT",
+            "TGAGAATGTT",
+        ]
+        assert variants[0] == Variant(
             chrom="chr22", pos=21541590, ref="A", alt="T", id="None"
         )
 
