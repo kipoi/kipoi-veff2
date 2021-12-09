@@ -1,0 +1,55 @@
+from pathlib import Path
+import glob
+
+data_dir = "/1000genomedata/"
+
+def get_vcf_fasta_pair():
+    vcf_files = [f'{p.stem.replace(".vcf", "")}' for p in Path(data_dir).iterdir() if p.is_file() and all(ext in p.suffixes for ext in ['.vcf', '.gz'])]
+    vcf_fasta_pair = {vf: f'chr{vf.split(".")[1][3:]}.fa' for vf in vcf_files}
+    return vcf_fasta_pair
+
+def get_args(params):
+    """Function returning appropriate parameters with the flag
+    for the corresponding model
+    """
+    if "MMSplice" in params.model:
+        return "-g input/test.gtf"
+    else:
+        return "-s diff"
+
+groups = [ "pwm_HOCOMOCO", "DeepBind/Homo_sapiens"]
+
+def get_list_of_models():
+    """Function returning list of models
+    that belongs to a list of model groups"""
+    from kipoi import list_models
+    all_models = list_models().model
+    group_to_models = {group : sorted(list(all_models[all_models.str.contains(group)])) for group in groups}
+    return group_to_models
+
+group_to_models = get_list_of_models()
+vcf_fasta_pair = get_vcf_fasta_pair()
+
+rule all:
+    input: 
+        expand("merged__{group}__{id}.tsv", group=groups, id=vcf_fasta_pair.keys())
+
+rule run_vep:
+    input: 
+        vcf = data_dir+"{id}.vcf.gz",
+        fasta = lambda wildcards: data_dir+vcf_fasta_pair[wildcards.id], 
+    output: 
+        temp("output__{model}__{id}.tsv")
+    params: 
+        model_args = get_args
+    shell: 
+        "kipoi_veff2_predict {input.vcf} {input.fasta} {params.model_args} {output} -m {wildcards.model}"
+
+rule merge_per_group:
+    input:
+        lambda wildcards: expand("output__{model}__{{id}}.tsv", model=group_to_models[wildcards.group])
+    output:
+        "merged__{group}__{id}.tsv"
+    shell:
+        "kipoi_veff2_merge {input} {output}"
+ 
