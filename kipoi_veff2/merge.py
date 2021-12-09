@@ -12,7 +12,8 @@ import pandas as pd
 )
 @click.argument("merged_tsv", nargs=1, type=click.Path(), required=True)
 def merge(input_tsvs, merged_tsv) -> None:
-    """Merge multiple tsvs into a single tsvs"""
+    """Merge multiple tsvs into a single tsv using #CHROM, POS, ID,
+    REF, ALT columns as index and write it back to disk"""
     index_columns = ["#CHROM", "POS", "ID", "REF", "ALT"]
     df_merged = pd.read_csv(input_tsvs[0], sep="\t", index_col=index_columns)
     for input_tsv in input_tsvs[1:]:

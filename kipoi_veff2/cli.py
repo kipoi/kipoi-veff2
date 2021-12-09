@@ -12,8 +12,9 @@ ScoringFunction = Callable[[Any, Any], List]
 def validate_model(
     ctx: click.Context, param: click.Parameter, model: str
 ) -> str:
-    """[This is a callback for validation of requested model w.r.t
-        variant_centered.MODEL_GROUPS and interval_based.MODEL_GROUPS]
+    """This is a callback for validation of requested model w.r.t
+        variant_centered.MODEL_GROUPS and interval_based.MODEL_GROUPS
+
     Raises:
         click.BadParameter: [An exception that formats
         out a standardized error message for a bad parameter
@@ -38,8 +39,8 @@ def validate_model(
 def validate_scoring_function(
     ctx: click.Context, param: click.Parameter, scoring_function: tuple
 ) -> List[Dict[str, ScoringFunction]]:
-    """[This is a callback for validation of scoring functions w.r.t
-    scores.AVAILABLE_SCORING_FUNCTIONS]
+    """This is a callback for validation of scoring functions w.r.t
+    scores.AVAILABLE_SCORING_FUNCTIONS
     """
     scoring_functions = []
     for scoring_function_name in list(scoring_function):
@@ -87,9 +88,7 @@ def validate_scoring_function(
 @click.option(
     "-g", "--gtf", "input_gtf", type=click.Path(exists=True, readable=True)
 )
-@click.option(
-    "-l", "--seq-length", "sequence_length", default=None, type=int
-)  # TODO: A validation function for checking if it is a positive int?
+@click.option("-l", "--seq-length", "sequence_length", default=None, type=int)
 @click.argument("output_tsv", required=True)
 @click.option(
     "-m",
@@ -126,8 +125,10 @@ def score_variants(
     model: str,
     scoring_function: List[Dict[str, ScoringFunction]],
 ) -> None:
-    """Perform variant effect prediction with the INPUT_VCF and INPUT_FASTA
-    files using the MODELS and write them to OUTPUT_TSV"""
+    """Perform variant effect prediction with a vcf, fasta
+    and optionally gtf files along with a model and optional
+    scoring funciton dictinary and write the
+    scored effect prediction to an output tsv file"""
     model_group = model.split("/")[0]
     if model_group in variant_centered.MODEL_GROUPS:
         model_group_config_dict = (
@@ -148,14 +149,12 @@ def score_variants(
             assert (
                 getattr(model_config, "required_sequence_length")
                 == sequence_length
-            )  # TODO: write a meaningful test
+            )
         variant_centered.score_variants(
             model_config, input_vcf, input_fasta, output_tsv, scoring_function
         )
     elif model_group in interval_based.MODEL_GROUPS:
-        model_config = interval_based.INTERVAL_BASED_MODEL_CONFIGS[
-            model
-        ]  # TODO; Use .get here?
+        model_config = interval_based.INTERVAL_BASED_MODEL_CONFIGS[model]
         interval_based.score_variants(
             model_config, input_vcf, input_fasta, input_gtf, output_tsv
         )
