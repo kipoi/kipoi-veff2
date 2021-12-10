@@ -1,4 +1,4 @@
-name: kipoi-veff2 CI
+name: CI
 
 on: [push]
 
