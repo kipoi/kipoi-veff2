@@ -1,8 +1,9 @@
+# kipoi-veff2
+
 [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
 ![](https://github.com/kipoi/kipoi-veff2/actions/workflows/nightly-ci.yml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/kipoi/kipoi-veff2/badge.svg)](https://coveralls.io/github/kipoi/kipoi-veff2)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-# Description
 
 This is an Ensembl Variant Effect Predictor (VEP) like tool with a subset of kipoi models. Models in Kipoi can be broadly classified into two groups -
 
