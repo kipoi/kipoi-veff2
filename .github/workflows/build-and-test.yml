@@ -57,6 +57,8 @@ jobs:
           - os: ubuntu
             environment-file: environment.minimal.linux.yml
     runs-on: ${{ matrix.os }}-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - uses: actions/checkout@v2
     - name: Run formatter
@@ -84,6 +86,9 @@ jobs:
     - name: Install kipoi-veff2
       shell: bash -l {0}
       run: python -m pip uninstall -y enum34 && python -m pip install . #TODO: How is enum34 getting installed to begin with?
-    - name: Run CI tests on ${{ matrix.os }}
+    - name: Run CI tests on ${{ matrix.os }} and send coverage report to coveralls.io
       shell: bash -l {0}
-      run: pytest -k "not workflow" -s --disable-warnings tests
+      run: |
+        pip install coveralls
+        coverage run -m pytest -k "not workflow" -s --disable-warnings tests
+        coveralls --service=github
