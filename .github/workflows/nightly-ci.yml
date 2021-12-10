@@ -1,4 +1,4 @@
-name: kipoi-veff2 nightly CI
+name: Nightly CI
 
 on:
     schedule:

@@ -1,3 +1,7 @@
+[![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
+![](https://github.com/kipoi/kipoi-veff2/actions/workflows/nightly-ci.yml/badge.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # Description
 
 This is an Ensembl Variant Effect Predictor (VEP) like tool with a subset of kipoi models. Models in Kipoi can be broadly classified into two groups -
@@ -193,6 +197,13 @@ kipoi_veff2_merge output1.tsv output2.tsv ... output.10.tsv merged.tsv
 ```
 
 ## Running multiple models and/or vcf/fasta pairs
+
+### Preparing the vcf and fasta files
+
+- Variant centered effect prediction will only work with one allele at a time. Split multiple alternative alleles into separate lines.
+- Chromosome names in the fasta file have to be compatible with the VCF file. For example, if chromosome 1 is denoted by ' chr1' in the vcf file, then the reference genome also has to have `chr1` chromosome and not `1`.
+- Fasta files can not contain lower cases.
+- ’N’ is the only allowed neutral alphabet (e.g. sequence should only contain A,C,G,T,N)
 
 ### Snakemake workflow
 
