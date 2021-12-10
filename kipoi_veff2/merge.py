@@ -11,10 +11,7 @@ import pandas as pd
     required=True,
 )
 @click.argument("merged_tsv", nargs=1, type=click.Path(), required=True)
-@click.argument(
-    "number_of_processes", nargs=1, type=int, default=8, required=False
-)
-def merge(input_tsvs, merged_tsv, number_of_processes) -> None:
+def merge(input_tsvs, merged_tsv) -> None:
     """Merge multiple tsvs into a single tsvs"""
     index_columns = ["#CHROM", "POS", "ID", "REF", "ALT"]
     dfs = [
