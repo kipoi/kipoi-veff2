@@ -18,13 +18,13 @@ def test_interval_based_modelconfig():
     "model_name, header_name, variant_exon_id, number_of_headers,\
         number_of_rows",
     [
-        (
-            "MMSplice/modularPredictions",
-            "MMSplice/modularPredictions/donor_ref_intron",
-            "17:41197805:ACATCTGCC>A:ENSE00001814242",
-            15,
-            2034,
-        ),
+#         (
+#             "MMSplice/modularPredictions",
+#             "MMSplice/modularPredictions/donor_ref_intron",
+#             "17:41197805:ACATCTGCC>A:ENSE00001814242",
+#             15,
+#             2034,
+#         ),
         (
             "MMSplice/deltaLogitPSI",
             "MMSplice/deltaLogitPSI/1",
