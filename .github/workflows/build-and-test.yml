@@ -96,12 +96,12 @@ jobs:
 
   testdockerandsingularity:
     runs-on: ubuntu-latest
-      steps:
-      - uses: actions/checkout@v2
-      - name: Pull docker image
-        run: |
-          docker pull kipoi/kipoi-veff2:py36
-      - name: Test docker image
-        run: |
-          docker run -v $PWD:/tmp kipoi/kipoi-veff2:py36 pytest -s --disable-warnings -k "not workflow" /tmp/tests 
-          docker system prune -af
+    steps:
+    - uses: actions/checkout@v2
+    - name: Pull docker image
+      run: |
+        docker pull kipoi/kipoi-veff2:py36
+    - name: Test docker image
+      run: |
+        docker run -v $PWD:/tmp kipoi/kipoi-veff2:py36 pytest -s --disable-warnings -k "not workflow" /tmp/tests 
+        docker system prune -af
