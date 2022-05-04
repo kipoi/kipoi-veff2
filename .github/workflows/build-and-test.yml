@@ -93,3 +93,15 @@ jobs:
         pip install coveralls
         coverage run -m pytest -k "not workflow" -s --disable-warnings tests
         coveralls --service=github
+
+  testdockerandsingularity:
+    runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v2
+      - name: Pull docker image
+        run: |
+          docker pull kipoi/kipoi-veff2:py36
+      - name: Test docker image
+        run: |
+          docker run -v $PWD:/tmp kipoi/kipoi-veff2:py36 pytest -s --disable-warnings -k "not workflow" /tmp/tests 
+          docker system prune -af
