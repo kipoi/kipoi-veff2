@@ -7,14 +7,11 @@ dependencies:
   - bedtools=2.30.0
   - cython
   - cyvcf2=0.30.8
-  # - mamba=0.13.0
   - pip=20.2.4
   - python=3.7
-  # - snakemake=6.3.0
-  # - snakemake-minimal=6.3.0
+  - snakemake
   - pip:
     - torch
-    # - dataclasses==0.8
     - gffutils==0.10.1
     - pybedtools
     - h5py==2.10.0
