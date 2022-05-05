@@ -1,28 +1,32 @@
 name: CI
 
-on: [push]
+on: 
+  push:
+  schedule:
+    # At the end of everyday
+    - cron: "0 0 * * *"
 
 jobs:
   build-and-test-package:
     strategy:
       fail-fast: true 
       matrix:
-        os: ["ubuntu", "macos"]
+        os: ["ubuntu-latest", "macos-latest"]
         include:
-          - os: ubuntu
+          - os: ubuntu-latest
             environment-file: environment.ubuntu.yml
-          - os: macos
+          - os: macos-latest
             environment-file: environment.osx.yml
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
     - name: Run formatter
       uses: psf/black@stable
-      if: matrix.os == 'ubuntu'
-    - name: Set up Python 3.6
+      if: matrix.os == 'ubuntu-latest'
+    - name: Set up Python 3.7
       uses: actions/setup-python@v2
       with:
-        python-version: 3.6
+        python-version: 3.7
     - name: Run linter
       run: |
         python -m pip install --upgrade pip
@@ -36,11 +40,11 @@ jobs:
       with:
         activate-environment: kipoi-veff2
         environment-file: ${{ matrix.environment-file }}
-        python-version: 3.6
+        python-version: 3.7
         auto-activate-base: false
     - name: Install kipoi-veff2
       shell: bash -l {0}
-      run: python -m pip uninstall -y enum34 && python -m pip install . #TODO: How is enum34 getting installed to begin with?
+      run: python -m pip install .
     - name: Run CI tests on ${{ matrix.os }}
       shell: bash -l {0}
       run: pytest -k "not workflow" -s --disable-warnings tests
@@ -48,47 +52,58 @@ jobs:
       shell: bash -l {0}
       run: cd examples && snakemake -j4 && cd ../ && pytest -k "workflow" -s --disable-warnings tests
 
-  # build-and-test-package-with-minimal-env:
-  #   strategy:
-  #     fail-fast: true 
-  #     matrix:
-  #       os: ["ubuntu"]
-  #       include:
-  #         - os: ubuntu
-  #           environment-file: environment.minimal.linux.yml
-  #   runs-on: ${{ matrix.os }}-latest
-  #   env:
-  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Run formatter
-  #     uses: psf/black@stable
-  #     if: matrix.os == 'ubuntu'
-  #   - name: Set up Python 3.6
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: 3.6
-  #   - name: Run linter
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       pip install flake8 pytest
-  #       # stop the build if there are Python syntax errors or undefined names
-  #       flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-  #       # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-  #       flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-  #   - name: Install dependencies on ${{ matrix.os }}
-  #     uses: conda-incubator/setup-miniconda@v2
-  #     with:
-  #       activate-environment: kipoi-veff2
-  #       environment-file: ${{ matrix.environment-file }}
-  #       python-version: 3.6
-  #       auto-activate-base: false
-  #   - name: Install kipoi-veff2
-  #     shell: bash -l {0}
-  #     run: python -m pip uninstall -y enum34 && python -m pip install . #TODO: How is enum34 getting installed to begin with?
-  #   - name: Run CI tests on ${{ matrix.os }} and send coverage report to coveralls.io
-  #     shell: bash -l {0}
-  #     run: |
-  #       pip install coveralls
-  #       coverage run -m pytest -k "not workflow" -s --disable-warnings tests
-  #       coveralls --service=github
+
+  build-and-test-package-with-minimal-env:
+    runs-on: ubuntu-latest
+    container:
+      image: "centos:7"
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Install system level dependencies and conda
+      run: |
+        yum update -y
+        yum install -y sudo
+        yum install -y build-essential libz-dev libcurl3-dev libarchive-dev gcc wget
+        wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
+        /usr/bin/bash ~/miniconda.sh -b
+        rm ~/miniconda.sh
+        ~/miniconda3/bin/conda clean -tipsy
+        sudo ln -s ~/miniconda3/etc/profile.d/conda.sh /etc/profile.d/conda.sh
+        echo ". ~/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc
+        echo "conda activate base" >> ~/.bashrc
+    - name: Install kipoi-veff2
+      shell: bash -l {0}
+      run: |
+        source ~/.bashrc 
+        conda update -n base conda
+        conda install -n base conda-libmamba-solver
+        conda env create -f environment.minimal.linux.yml --experimental-solver=libmamba
+        conda activate kipoi-veff2
+        python -m pip install .
+    - name: Run CI tests on centos and send coverage report to coveralls.io
+      shell: bash -l {0}
+      run: |
+        source ~/.bashrc 
+        conda activate kipoi-veff2
+        pytest -k "not workflow" -s --disable-warnings tests
+  testdocker:
+    strategy:
+      fail-fast: true 
+      matrix:
+        dockerimage: ["kipoi/kipoi-veff2:py36", "kipoi/kipoi-veff2:py37"]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Pull ${{ matrix.dockerimage }}
+      run: |
+        docker pull ${{ matrix.dockerimage }}
+    - name: Test ${{ matrix.dockerimage }}
+      run: |
+        docker run -v $PWD:/tmp ${{ matrix.dockerimage }} pytest -s --disable-warnings -k "not workflow" /tmp/tests 
+        docker system prune -af

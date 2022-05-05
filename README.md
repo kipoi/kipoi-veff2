@@ -54,17 +54,34 @@ The installation operates in two stages - first a conda environment is created w
 
 	#### General purpose environment
 
-	A more abridged version with minimal sets of dependencies is avaiable in environment.minimal.yml. This has been tested on CentOS Linux with conda 4.7.10. This environment intentionally does not contain snakemake in order to keep it minimal. Please be sure to install snakemake before
+	A more abridged version with minimal sets of dependencies is avaiable in `environment.minimal.linux.yml`. This has been tested on CentOS Linux with conda 4.7.10. This environment intentionally does not contain snakemake in order to keep it minimal. Be sure to install snakemake before
 	using the Snakefile inside examples.
 
 2. ### Install kipoi-veff2
 
 	```bash
 	conda activate kipoi-veff2
-	python -m pip uninstall -y enum34 && python -m pip install .
+	python -m pip install .
 	```
 
 	Note: For older version of conda (4.7.10), pinning cyvcf2 to 0.11 seems to work in CentOS Linux
+
+## kipoi-veff2 docker images
+
+Alternatively, two ready to use docker images are available in dockerhub. Running the images will return a shell with activated conda environment with all dependencies and kipoi_veff2 already installed. The details are as follows
+
+### Pull docker images
+
+```bash
+docker pull kipoi/kipoi-veff2:py36 (Available with python=3.6)
+docker pull kipoi/kipoi-veff2:py37 (Available with python=3.7)
+```
+
+### Run docker image
+
+```bash
+docker run -v $PWD:/tmp kipoi/kipoi-veff2:py37 kipoi_veff2_predict <input-vcf> <input-fasta> <output-tsv> -m "DeepSEA/predict" -s "diff" -s "logit"
+```
 
 ## Tests
 
