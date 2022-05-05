@@ -76,15 +76,16 @@ jobs:
     - name: Install kipoi-veff2
       shell: bash -l {0}
       run: |
+        source ~/.bashrc 
         conda update -n base conda
         conda install -n base conda-libmamba-solver
-        conda env create -f environment.minimal.linux.yml 
+        conda env create -f environment.minimal.linux.yml --experimental-solver=libmamba
         conda activate kipoi-veff2
         python -m pip install .
     - name: Run CI tests on centos and send coverage report to coveralls.io
       shell: bash -l {0}
       run: |
-        conda activate kipoi-veff2
+        source activate kipoi-veff2
         pip install coveralls
         coverage run -m pytest -k "not workflow" -s --disable-warnings tests
         coveralls --service=github
