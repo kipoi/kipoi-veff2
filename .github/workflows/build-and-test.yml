@@ -85,7 +85,8 @@ jobs:
     - name: Run CI tests on centos and send coverage report to coveralls.io
       shell: bash -l {0}
       run: |
-        source activate kipoi-veff2
+        source ~/.bashrc 
+        conda activate kipoi-veff2
         pip install coveralls
         coverage run -m pytest -k "not workflow" -s --disable-warnings tests
         coveralls --service=github
