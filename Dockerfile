@@ -13,7 +13,8 @@ RUN conda update -n base conda && \
     conda clean -afy
 
 RUN echo "source activate kipoi-veff2" > ~/.bashrc
+ENV PATH /opt/conda/envs/kipoi-veff2/bin:$PATH
 
 RUN pip install .
 
-ENV PATH /opt/conda/envs/kipoi-veff2/bin:$PATH
+WORKDIR /

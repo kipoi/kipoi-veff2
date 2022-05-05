@@ -1,6 +1,10 @@
 name: CI
 
-on: [push]
+on: 
+  push:
+  schedule:
+    # At the end of everyday
+    - cron: "0 0 * * *"
 
 jobs:
   build-and-test-package:
@@ -89,13 +93,17 @@ jobs:
         conda activate kipoi-veff2
         pytest -k "not workflow" -s --disable-warnings tests
   testdocker:
+    strategy:
+      fail-fast: true 
+      matrix:
+        dockerimage: ["kipoi/kipoi-veff2:py36", "kipoi/kipoi-veff2:py37"]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Pull docker image
+    - name: Pull ${{ matrix.dockerimage }}
       run: |
-        docker pull kipoi/kipoi-veff2:py36
-    - name: Test docker image
+        docker pull ${{ matrix.dockerimage }}
+    - name: Test ${{ matrix.dockerimage }}
       run: |
-        docker run -v $PWD:/tmp kipoi/kipoi-veff2:py36 pytest -s --disable-warnings -k "not workflow" /tmp/tests 
+        docker run -v $PWD:/tmp ${{ matrix.dockerimage }} pytest -s --disable-warnings -k "not workflow" /tmp/tests 
         docker system prune -af
