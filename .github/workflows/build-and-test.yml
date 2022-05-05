@@ -87,10 +87,7 @@ jobs:
       run: |
         source ~/.bashrc 
         conda activate kipoi-veff2
-        pip install coveralls
-        coverage run -m pytest -k "not workflow" -s --disable-warnings tests
-        coveralls --service=github
-
+        pytest -k "not workflow" -s --disable-warnings tests
   testdocker:
     runs-on: ubuntu-latest
     steps:
