@@ -1,9 +1,9 @@
 # kipoi-veff2
 
-[![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
+[![Python 3.6](https://img.shields.io/badge/python-3.6%20|%203.7-cyan.svg)](https://www.python.org/downloads/release/python-360/)
 ![](https://github.com/kipoi/kipoi-veff2/actions/workflows/build-and-test.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/kipoi/kipoi-veff2/badge.svg)](https://coveralls.io/github/kipoi/kipoi-veff2)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-pink.svg)](https://opensource.org/licenses/MIT)
 
 This is an Ensembl Variant Effect Predictor (VEP) like tool with a subset of kipoi models. Models in Kipoi can be broadly classified into two groups -
 
@@ -80,7 +80,7 @@ docker pull kipoi/kipoi-veff2:py37 (Available with python=3.7)
 ### Run docker image
 
 ```bash
-docker run -v $PWD:/tmp kipoi/kipoi-veff2:py37 kipoi_veff2_predict <input-vcf> <input-fasta> <output-tsv> -m "DeepSEA/predict" -s "diff" -s "logit"
+docker run -v $PWD:/tmp kipoi/kipoi-veff2:py37 kipoi_veff2_predict /tmp/input.vcf /tmp/input.fa /tmp/output.tsv -m "DeepSEA/predict" -s "diff" -s "logit"
 ```
 
 ## Tests
