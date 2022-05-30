@@ -26,5 +26,6 @@ dependencies:
     - kipoi
     - kipoi-conda
     - kipoi-utils
+    - sorted-nearest==0.0.33
     - kipoiseq
 prefix: /Users/b260/anaconda3/envs/kipoi-veff2
