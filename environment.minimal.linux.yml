@@ -30,5 +30,6 @@ dependencies:
     - sorted-nearest==0.0.33
     - kipoiseq
     - typing-extensions==4.1.1
+    - attrs==21.4.0
 
 prefix: /usr/local/envs/kipoi-veff2
