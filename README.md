@@ -5,6 +5,23 @@
 [![Coverage Status](https://coveralls.io/repos/github/kipoi/kipoi-veff2/badge.svg)](https://coveralls.io/github/kipoi/kipoi-veff2)
 [![License: MIT](https://img.shields.io/badge/License-MIT-pink.svg)](https://opensource.org/licenses/MIT)
 
+
+> [!WARNING]
+> ### **Kipoi Project - Sunset Announcement**
+> 
+> After several impactful years, we have made the decision to **archive the Kipoi repositories and end active maintenance** of the project.
+> 
+> This is a bittersweet moment. While it’s always a little sad to sunset a project, the field of machine learning in genomics has evolved rapidly, with new technologies and platforms emerging that better meet current needs. Kipoi played an important role in its time, helping researchers **share, reuse, and benchmark trained models** in regulatory genomics. We’re proud of what it accomplished and grateful for the strong community support that made it possible.
+> 
+> Kipoi’s impact continues, however:
+> 
+> *   [The Kipoi webinar series](seminar.html) will carry on, supporting discussions around model reuse and interpretability.
+> *   [Kipoiseq](https://github.com/kipoi/kipoiseq), our standard set of data-loaders for sequence-based modeling, also remains active and relevant.
+> 
+> Thanks to everyone who contributed, used, or supported Kipoi. It’s been a fantastic journey, and we're glad the project helped shape how models are shared in the field.
+> 
+> \- The Kipoi Team
+
 This is an Ensembl Variant Effect Predictor (VEP) like tool with a subset of kipoi models. Models in Kipoi can be broadly classified into two groups -
 
 - Models that are capable of inferring from any part of the genome. These models will use variant centered effect prediction. The chosen model groups use `kipoiseq.datalaoders.SeqIntervalDl` as their default dataloader. The algorithm is as follows:
