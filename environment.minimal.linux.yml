@@ -27,7 +27,9 @@ dependencies:
     - kipoi
     - kipoi-conda
     - kipoi-utils
-    - sorted-nearest==0.0.33
+    - markdown==3.3.6
+    - setuptools==62.1.0
+    - sorted-nearest==0.0.39
     - kipoiseq
     - typing-extensions==4.1.1
     - attrs==21.4.0
